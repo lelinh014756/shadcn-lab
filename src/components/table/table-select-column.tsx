@@ -1,9 +1,19 @@
 "use client";
 
+/**
+ * Cột chọn dòng dùng chung cho cả data-table và data-grid.
+ *
+ * UX: bình thường hiện số thứ tự, hover hoặc khi dòng được chọn thì đổi thành
+ * checkbox — nhờ vậy STT và ô chọn dùng chung một cột thay vì chiếm hai cột.
+ * `readOnly` tắt hẳn checkbox, chỉ còn số thứ tự.
+ */
+
 import type {
   CellContext,
   ColumnDef,
   HeaderContext,
+  Row,
+  Table,
 } from "@tanstack/react-table";
 import * as React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -11,19 +21,19 @@ import { cn } from "@/lib/utils";
 
 type HitboxSize = "default" | "sm" | "lg";
 
-interface DataGridSelectHitboxProps {
+interface TableSelectHitboxProps {
   htmlFor: string;
   children: React.ReactNode;
   size?: HitboxSize;
   debug?: boolean;
 }
 
-function DataGridSelectHitbox({
+function TableSelectHitbox({
   htmlFor,
   children,
   size,
   debug,
-}: DataGridSelectHitboxProps) {
+}: TableSelectHitboxProps) {
   return (
     <div
       className={cn(
@@ -45,26 +55,26 @@ function DataGridSelectHitbox({
   );
 }
 
-interface DataGridSelectCheckboxProps
+interface TableSelectCheckboxProps
   extends Omit<React.ComponentProps<typeof Checkbox>, "id"> {
   rowNumber?: number;
   hitboxSize?: HitboxSize;
   debug?: boolean;
 }
 
-function DataGridSelectCheckbox({
+function TableSelectCheckbox({
   rowNumber,
   hitboxSize,
   debug,
   checked,
   className,
   ...props
-}: DataGridSelectCheckboxProps) {
+}: TableSelectCheckboxProps) {
   const id = React.useId();
 
   if (rowNumber !== undefined) {
     return (
-      <DataGridSelectHitbox htmlFor={id} size={hitboxSize} debug={debug}>
+      <TableSelectHitbox htmlFor={id} size={hitboxSize} debug={debug}>
         <div
           aria-hidden="true"
           className={cn(
@@ -84,12 +94,12 @@ function DataGridSelectCheckbox({
           checked={checked}
           {...props}
         />
-      </DataGridSelectHitbox>
+      </TableSelectHitbox>
     );
   }
 
   return (
-    <DataGridSelectHitbox htmlFor={id} size={hitboxSize} debug={debug}>
+    <TableSelectHitbox htmlFor={id} size={hitboxSize} debug={debug}>
       <Checkbox
         id={id}
         className={cn(
@@ -99,23 +109,23 @@ function DataGridSelectCheckbox({
         checked={checked}
         {...props}
       />
-    </DataGridSelectHitbox>
+    </TableSelectHitbox>
   );
 }
 
-interface DataGridSelectHeaderProps<TData>
+interface TableSelectHeaderProps<TData>
   extends Pick<HeaderContext<TData, unknown>, "table"> {
   hitboxSize?: HitboxSize;
   readOnly?: boolean;
   debug?: boolean;
 }
 
-function DataGridSelectHeader<TData>({
+function TableSelectHeader<TData>({
   table,
   hitboxSize,
   readOnly,
   debug,
-}: DataGridSelectHeaderProps<TData>) {
+}: TableSelectHeaderProps<TData>) {
   const onCheckedChange = React.useCallback(
     (value: boolean) => table.toggleAllPageRowsSelected(value),
     [table],
@@ -130,7 +140,7 @@ function DataGridSelectHeader<TData>({
   }
 
   return (
-    <DataGridSelectCheckbox
+    <TableSelectCheckbox
       aria-label="Select all"
       checked={
         table.getIsAllPageRowsSelected() ||
@@ -143,26 +153,41 @@ function DataGridSelectHeader<TData>({
   );
 }
 
-interface DataGridSelectCellProps<TData>
+type GetRowNumber<TData> = (row: Row<TData>, table: Table<TData>) => number;
+
+/**
+ * Mặc định: ưu tiên chỉ số ảo của data-grid, không có thì cộng offset trang —
+ * data-table chạy `manualPagination` nên `row.index` chỉ tính trong trang.
+ */
+function defaultGetRowNumber<TData>(row: Row<TData>, table: Table<TData>) {
+  const visualIndex = table.options.meta?.getVisualRowIndex?.(row.id);
+  if (visualIndex !== undefined) return visualIndex;
+
+  const { pageIndex, pageSize } = table.getState().pagination;
+  const offset = table.options.manualPagination ? pageIndex * pageSize : 0;
+  return offset + row.index + 1;
+}
+
+interface TableSelectCellProps<TData>
   extends Pick<CellContext<TData, unknown>, "row" | "table"> {
   hitboxSize?: HitboxSize;
   enableRowMarkers?: boolean;
   readOnly?: boolean;
   debug?: boolean;
+  getRowNumber?: GetRowNumber<TData>;
 }
 
-function DataGridSelectCell<TData>({
+function TableSelectCell<TData>({
   row,
   table,
   hitboxSize,
   enableRowMarkers,
   readOnly,
   debug,
-}: DataGridSelectCellProps<TData>) {
+  getRowNumber = defaultGetRowNumber,
+}: TableSelectCellProps<TData>) {
   const meta = table.options.meta;
-  const rowNumber = enableRowMarkers
-    ? (meta?.getVisualRowIndex?.(row.id) ?? row.index + 1)
-    : undefined;
+  const rowNumber = enableRowMarkers ? getRowNumber(row, table) : undefined;
 
   const onCheckedChange = React.useCallback(
     (value: boolean) => {
@@ -188,13 +213,13 @@ function DataGridSelectCell<TData>({
   if (readOnly) {
     return (
       <div className="flex items-center ps-1 text-muted-foreground text-xs tabular-nums">
-        {rowNumber ?? row.index + 1}
+        {rowNumber ?? getRowNumber(row, table)}
       </div>
     );
   }
 
   return (
-    <DataGridSelectCheckbox
+    <TableSelectCheckbox
       aria-label={rowNumber ? `Select row ${rowNumber}` : "Select row"}
       checked={row.getIsSelected()}
       onCheckedChange={onCheckedChange}
@@ -206,15 +231,18 @@ function DataGridSelectCell<TData>({
   );
 }
 
-interface GetDataGridSelectColumnOptions<TData>
+interface GetTableSelectColumnOptions<TData>
   extends Omit<Partial<ColumnDef<TData>>, "id" | "header" | "cell"> {
+  id?: string;
   enableRowMarkers?: boolean;
   readOnly?: boolean;
   hitboxSize?: HitboxSize;
   debug?: boolean;
+  getRowNumber?: GetRowNumber<TData>;
 }
 
-export function getDataGridSelectColumn<TData>({
+export function getTableSelectColumn<TData>({
+  id = "select",
   size = 40,
   hitboxSize = "default",
   enableHiding = false,
@@ -223,12 +251,13 @@ export function getDataGridSelectColumn<TData>({
   enableRowMarkers = false,
   readOnly = false,
   debug = false,
+  getRowNumber,
   ...props
-}: GetDataGridSelectColumnOptions<TData> = {}): ColumnDef<TData> {
+}: GetTableSelectColumnOptions<TData> = {}): ColumnDef<TData> {
   return {
-    id: "select",
+    id,
     header: ({ table }) => (
-      <DataGridSelectHeader
+      <TableSelectHeader
         table={table}
         hitboxSize={hitboxSize}
         readOnly={readOnly}
@@ -236,13 +265,14 @@ export function getDataGridSelectColumn<TData>({
       />
     ),
     cell: ({ row, table }) => (
-      <DataGridSelectCell
+      <TableSelectCell
         row={row}
         table={table}
         enableRowMarkers={enableRowMarkers}
         readOnly={readOnly}
         hitboxSize={hitboxSize}
         debug={debug}
+        getRowNumber={getRowNumber}
       />
     ),
     size,

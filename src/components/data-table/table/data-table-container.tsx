@@ -24,13 +24,17 @@ export function DataTableContainer<TData extends RowData>({
     table,
   });
 
-  // Column pinning positions cells with `left`/`right` offsets derived from
-  // `column.getSize()`. Those offsets only line up if the browser honors the
-  // same widths, which needs a fixed layout and an explicit total width.
+  // Ghim cột tính `left`/`right` từ `column.getSize()`, nên chỉ khớp khi trình
+  // duyệt dùng đúng width đó — tức phải `table-layout: fixed` + width tổng.
+  //
+  // Chỉ bật khi thật cần: fixed layout ép mọi cột về size khai báo (mặc định
+  // 150px), làm mất tỉ lệ tự nhiên. Ghim đúng một cột ở mép thì offset luôn
+  // bằng 0 nên không cần; từ cột thứ hai trở đi offset mới cộng dồn.
+  const pinning = table.getState().columnPinning;
   const hasExplicitSizing =
     table.options.enableColumnResizing === true ||
-    table.getState().columnPinning.left?.length ||
-    table.getState().columnPinning.right?.length;
+    (pinning.left?.length ?? 0) > 1 ||
+    (pinning.right?.length ?? 0) > 1;
 
   return (
     <div
@@ -40,7 +44,7 @@ export function DataTableContainer<TData extends RowData>({
         // `min-h-0 flex-1` makes this the scroll region inside the paper's flex
         // column; without it the container grows to content height and the page
         // scrolls instead, which breaks sticky headers and infinite scroll.
-        "relative min-h-0 flex-1 overflow-auto rounded-md border",
+        "relative min-h-0 flex-1 h-full flex flex-col rounded-md border",
         containerProps?.className,
       )}
     >

@@ -61,6 +61,7 @@ export interface DefinedTableCoreOptions<TData extends RowData>
   enableTableSettings: boolean;
   enableStickyHeader: boolean;
   enableStickyFooter: boolean;
+  enableColumnBorders: boolean;
   enablePagination: boolean;
   pageSizeOptions: number[];
   enableRowNumbers: boolean;
@@ -112,6 +113,7 @@ export function useTableCore<TData extends RowData>(
     enableTableSettings = false,
     enableStickyHeader = true,
     enableStickyFooter = false,
+    enableColumnBorders = false,
     enablePagination = true,
     pageSizeOptions = DEFAULT_PAGE_SIZE_OPTIONS,
     enableRowSelection,
@@ -121,6 +123,7 @@ export function useTableCore<TData extends RowData>(
     positionExpandColumn = "first",
     renderRowActions,
     renderDetailPanel,
+    renderTopToolbar,
     renderTopToolbarCustomActions,
     renderBottomToolbarCustomActions,
     renderToolbarAlertBannerContent,
@@ -186,6 +189,7 @@ export function useTableCore<TData extends RowData>(
     enableTableSettings,
     enableStickyHeader,
     enableStickyFooter,
+    enableColumnBorders,
     enablePagination,
     pageSizeOptions,
     enableRowNumbers,
@@ -194,6 +198,7 @@ export function useTableCore<TData extends RowData>(
     positionExpandColumn,
     renderRowActions,
     renderDetailPanel,
+    renderTopToolbar,
     renderTopToolbarCustomActions,
     renderBottomToolbarCustomActions,
     renderToolbarAlertBannerContent,

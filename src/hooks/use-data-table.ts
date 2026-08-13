@@ -297,12 +297,15 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       ...tableProps.defaultColumn,
       enableColumnFilter: false,
     },
-    enableRowSelection: true,
-    onRowSelectionChange: setRowSelection,
+    // Caller thắng: các option này nằm sau `...tableProps` nên phải fallback,
+    // không được gán cứng — nếu không `enableRowSelection` truyền vào bị nuốt.
+    enableRowSelection: tableProps.enableRowSelection ?? true,
+    onRowSelectionChange: tableProps.onRowSelectionChange ?? setRowSelection,
     onPaginationChange,
     onSortingChange,
     onColumnFiltersChange,
-    onColumnVisibilityChange: setColumnVisibility,
+    onColumnVisibilityChange:
+      tableProps.onColumnVisibilityChange ?? setColumnVisibility,
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),

@@ -9,7 +9,12 @@
  * defaults live in `useTableCore`, and rendering lives in `<DataTable>`.
  */
 
-import type { ColumnDef, OnChangeFn } from "@tanstack/react-table";
+import type {
+  ColumnDef,
+  ColumnPinningState,
+  OnChangeFn,
+  VisibilityState,
+} from "@tanstack/react-table";
 import * as React from "react";
 
 import type { TableCoreInstance } from "@/hooks/table/use-table-core";
@@ -75,6 +80,10 @@ interface UseEmployeesTableProps {
   mode: "paginated" | "infinite";
   pageCount: number;
   pageSize: number;
+  /** Toolbar riêng của màn hình — render thay DataTableTopToolbar. */
+  renderTopToolbar?: () => React.ReactNode;
+  onColumnPinningChange?: OnChangeFn<ColumnPinningState>;
+  onColumnVisibilityChange?: OnChangeFn<VisibilityState>;
 }
 
 export function useEmployeesTable({
@@ -89,6 +98,9 @@ export function useEmployeesTable({
   mode,
   pageCount,
   pageSize,
+  renderTopToolbar,
+  onColumnPinningChange,
+  onColumnVisibilityChange,
 }: UseEmployeesTableProps): {
   table: TableCoreInstance<Employee>;
 } {
@@ -337,6 +349,10 @@ export function useEmployeesTable({
       showProgressBars: isLoading,
     },
     onColumnSizingChange,
+    onColumnPinningChange,
+    onColumnVisibilityChange,
+
+    renderTopToolbar,
 
     enableRowSelection: settings.showMultiRowSelection,
     enableRowNumbers: true,
@@ -347,6 +363,7 @@ export function useEmployeesTable({
     enableBottomToolbar: !isInfinite,
     enableStickyHeader: true,
     enableStickyFooter: settings.showSummaryFooter,
+    enableColumnBorders: true,
 
     // The screen owns filters and actions, so the built-in filter row is off.
     enableColumnFilterToggle: false,

@@ -41,16 +41,22 @@ import {
   staffStatuses,
 } from "@/mocks/employees";
 
+import { EmployeesActionBar } from "../components/employees-action-bar";
 import { EmployeesDetailPanel } from "../components/employees-detail-panel";
 import { useEmployeesListData } from "../hooks/use-employees-list-data";
 import { useEmployeesTable } from "../hooks/use-employees-table";
 import {
+  buildEmployeesColumnPinning,
+  buildEmployeesColumnVisibility,
   buildEmployeesLayoutColumns,
   defaultEmployeesTableSettings,
   filterEmployeesDataColumnSizing,
+  parseEmployeesColumnPinning,
+  parseEmployeesColumnVisibility,
   reconcileEmployeesTableSettings,
 } from "../lib/employees-table-settings";
 import { TableFullscreenToggle } from "@/components/table";
+import { MasterDetailLayout } from "@/components/layouts/master-detail-layout/master-detail-layout";
 
 const ALL = "all";
 const INFINITE_SCROLL_THRESHOLD_PX = 400;
@@ -102,13 +108,14 @@ export function EmployeesListScreen() {
     [list.items, search.selected],
   );
 
+
   // ── Infinite scroll ────────────────────────────────────────────────────────
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!enableInfinite) return;
     const element = containerRef.current?.querySelector(
-      '[data-slot="data-table-container"]',
+      '[data-slot="table-container"]',
     );
     if (!element) return;
 
@@ -126,6 +133,7 @@ export function EmployeesListScreen() {
     element.addEventListener("scroll", onScroll);
     return () => element.removeEventListener("scroll", onScroll);
   }, [enableInfinite, list]);
+
 
   // ── Table ──────────────────────────────────────────────────────────────────
   const onColumnSizingChange = React.useCallback(
@@ -145,6 +153,30 @@ export function EmployeesListScreen() {
     [settings],
   );
 
+  const onColumnPinningChange = React.useCallback(
+    (updater: unknown) => {
+      const current = buildEmployeesColumnPinning(settings.applied);
+      const next =
+        typeof updater === "function"
+          ? (updater as (old: typeof current) => typeof current)(current)
+          : (updater as typeof current);
+      settings.patchApplied(parseEmployeesColumnPinning(next));
+    },
+    [settings],
+  );
+
+  const onColumnVisibilityChange = React.useCallback(
+    (updater: unknown) => {
+      const current = buildEmployeesColumnVisibility(settings.applied);
+      const next =
+        typeof updater === "function"
+          ? (updater as (old: typeof current) => typeof current)(current)
+          : (updater as typeof current);
+      settings.patchApplied(parseEmployeesColumnVisibility(next));
+    },
+    [settings],
+  );
+
   const onEdit = React.useCallback((employee: Employee) => {
     window.alert(`Demo: sửa nhân viên ${employee.fullName}`);
   }, []);
@@ -155,6 +187,8 @@ export function EmployeesListScreen() {
     },
     [setSearch],
   );
+
+  const renderTopToolbarRef = React.useRef<() => React.ReactNode>(() => null);
 
   const { table } = useEmployeesTable({
     data: list.items,
@@ -168,109 +202,94 @@ export function EmployeesListScreen() {
     isLoading: list.isLoading || list.isFetchingNextPage,
     mode: enableInfinite ? "infinite" : "paginated",
     pageSize: search.perPage,
+    renderTopToolbar: () => renderTopToolbarRef.current(),
+    onColumnPinningChange,
+    onColumnVisibilityChange,
   });
 
-  const [isDetailCollapsed, setIsDetailCollapsed] = React.useState(false);
+  // Toolbar riêng của màn hình. Truyền qua `renderTopToolbar` nên nó nằm trong
+  // vùng fullscreen của bảng — bấm toàn màn hình vẫn thấy đủ ô tìm kiếm,
+  // bộ lọc và các nút thao tác.
+  const renderTopToolbar = React.useCallback(
+    () => (
+      <header className="flex flex-wrap items-center justify-end gap-2 p-1">
+        <Input
+          placeholder="Tìm mã, tên, email, SĐT..."
+          defaultValue={search.q}
+          onChange={(event) =>
+            void setSearch({ q: event.target.value, page: 1 })
+          }
+          className="h-8 w-56"
+        />
+
+        <Button
+          aria-label="Bộ lọc"
+          variant="outline"
+          size="icon"
+          className="size-8"
+        >
+          <Filter />
+        </Button>
+
+        <Button
+          aria-label="Tải lại"
+          variant="outline"
+          size="icon"
+          className="size-8"
+          onClick={list.refetch}
+        >
+          <RefreshCw className={list.isLoading ? "animate-spin" : undefined} />
+        </Button>
+
+        <TableSettings
+          settings={settings}
+          columns={layoutColumns}
+          defaults={defaultEmployeesTableSettings}
+          showInfiniteScrollSwitch
+          onBeforeApply={(draft, applied) => {
+            if (draft.enableInfiniteScroll !== applied.enableInfiniteScroll) {
+              void setSearch({ page: 1 });
+            }
+          }}
+        />
+        <TableFullscreenToggle table={table} />
+
+        <Button onClick={() => window.alert("Demo: thêm nhân viên")}>
+          <UserPlus />
+          Thêm nhân viên
+        </Button>
+      </header>
+    ),
+    [layoutColumns, list, search.q, setSearch, settings, table],
+  );
+  renderTopToolbarRef.current = renderTopToolbar;
+
 
   return (
-    <div className="flex h-[calc(100vh-3.5rem)] flex-col gap-3 p-4">
-      <header className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h1 className="font-semibold text-lg">Nhân viên</h1>
-          <p className="text-muted-foreground text-xs">
-            {list.totalCount} nhân viên
-            {enableInfinite ? ` · đã tải ${list.items.length}` : ""}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Input
-            placeholder="Tìm mã, tên, email, SĐT..."
-            defaultValue={search.q}
-            onChange={(event) =>
-              void setSearch({ q: event.target.value, page: 1 })
-            }
-            className="h-8 w-56"
+    <div className="flex h-[calc(100vh-3.5rem)] flex-col p-4">
+      <MasterDetailLayout
+        masterPanel={
+          <div className="h-full min-h-0 flex-1">
+            {settings.isHydrated ? (
+              <DataTable
+                table={table}
+                ref={containerRef}
+                className="h-full"
+                actionBar={<EmployeesActionBar table={table} />}
+              />
+            ) : (
+              <Skeleton className="h-full w-full" />
+            )}
+          </div>
+        }
+        detailPanel={(controls) => (
+          <EmployeesDetailPanel
+            employee={activeEmployee}
+            isCollapsed={controls.isCollapsed}
+            onToggle={controls.onToggle}
           />
-
-          <Button
-            aria-label="Tải lại"
-            variant="outline"
-            size="icon"
-            className="size-8"
-          >
-            <Filter
-              className={list.isLoading ? "animate-spin" : undefined}
-            />
-          </Button>
-
-          {/* <FilterSelect
-            label="Đơn vị"
-            value={search.org}
-            options={organizations}
-            onChange={(value) => void setSearch({ org: value, page: 1 })}
-          />
-          <FilterSelect
-            label="Phòng ban"
-            value={search.dept}
-            options={departments}
-            onChange={(value) => void setSearch({ dept: value, page: 1 })}
-          />
-          <FilterSelect
-            label="Tình trạng"
-            value={search.status}
-            options={staffStatuses.map((s) => ({ id: s.id, name: s.label }))}
-            onChange={(value) => void setSearch({ status: value, page: 1 })}
-          /> */}
-
-          <Button
-            aria-label="Tải lại"
-            variant="outline"
-            size="icon"
-            className="size-8"
-            onClick={list.refetch}
-          >
-            <RefreshCw
-              className={list.isLoading ? "animate-spin" : undefined}
-            />
-          </Button>
-
-          <TableSettings
-            settings={settings}
-            columns={layoutColumns}
-            defaults={defaultEmployeesTableSettings}
-            showInfiniteScrollSwitch
-            onBeforeApply={(draft, applied) => {
-              if (draft.enableInfiniteScroll !== applied.enableInfiniteScroll) {
-                void setSearch({ page: 1 });
-              }
-            }}
-          />
-          <TableFullscreenToggle table={table} />
-
-          <Button onClick={() => window.alert("Demo: thêm nhân viên")}>
-            <UserPlus />
-            Thêm nhân viên
-          </Button>
-        </div>
-      </header>
-
-      <div className="flex min-h-0 flex-1 gap-3">
-        <div ref={containerRef} className="min-w-0 flex-1">
-          {settings.isHydrated ? (
-            <DataTable table={table} className="h-full" />
-          ) : (
-            <Skeleton className="h-full w-full" />
-          )}
-        </div>
-
-        <EmployeesDetailPanel
-          employee={activeEmployee}
-          isCollapsed={isDetailCollapsed}
-          onToggle={() => setIsDetailCollapsed((prev) => !prev)}
-          className={isDetailCollapsed ? "w-12" : "w-80 shrink-0"}
-        />
-      </div>
+        )}
+      />
     </div>
   );
 }

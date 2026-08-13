@@ -151,6 +151,7 @@ export interface TableLocalization {
   densitySpacious: string;
   edit: string;
   expand: string;
+  export: string;
   expandAll: string;
   filterByColumn: string;
   goToFirstPage: string;
@@ -174,6 +175,8 @@ export interface TableLocalization {
   rowNumbers: string;
   rowsPerPage: string;
   rowsSelected: string;
+  totalItems: string;
+  pageOf: string;
   search: string;
   select: string;
   selectAll: string;
@@ -230,6 +233,13 @@ export interface TableCoreOptions<TData extends RowData>
   enableColumnVisibilityToggle?: boolean;
   enableColumnFilterToggle?: boolean;
   enableTableSettings?: boolean;
+  /**
+   * Thay hẳn top toolbar mặc định. Dùng khi màn hình tự dựng toolbar riêng
+   * nhưng vẫn muốn nó nằm trong vùng fullscreen của bảng.
+   */
+  renderTopToolbar?: (context: {
+    table: TanstackTable<TData>;
+  }) => React.ReactNode;
   renderTopToolbarCustomActions?: (context: {
     table: TanstackTable<TData>;
   }) => React.ReactNode;
@@ -242,6 +252,8 @@ export interface TableCoreOptions<TData extends RowData>
 
   // Presentation
   layoutMode?: LayoutMode;
+  /** Kẻ đường lưới dọc giữa các cột, giống data-grid. */
+  enableColumnBorders?: boolean;
   enableStickyHeader?: boolean;
   enableStickyFooter?: boolean;
   renderEmptyRowsFallback?: (context: {

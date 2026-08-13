@@ -4,7 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Languages } from "lucide-react";
 import * as React from "react";
 import { DataGrid } from "@/components/data-grid/data-grid";
-import { getDataGridSelectColumn } from "@/components/data-grid/data-grid-select-column";
+import { getTableSelectColumn } from "@/components/table/table-select-column";
 import { DataGridFilterMenu } from "@/components/data-grid/menus/data-grid-filter-menu";
 import { DataGridRowHeightMenu } from "@/components/data-grid/menus/data-grid-row-height-menu";
 import { DataGridSortMenu } from "@/components/data-grid/menus/data-grid-sort-menu";
@@ -102,7 +102,7 @@ export function DataGridDemo() {
 
   const columns = React.useMemo<ColumnDef<Person>[]>(
     () => [
-      getDataGridSelectColumn<Person>({ enableRowMarkers: true }),
+      getTableSelectColumn<Person>({ enableRowMarkers: true }),
       {
         id: "name",
         accessorKey: "name",

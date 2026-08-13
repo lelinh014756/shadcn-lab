@@ -5,6 +5,7 @@ export { TableFilterToggle } from "./table-filter-toggle";
 export { TableFullscreenToggle } from "./table-fullscreen-toggle";
 export { TableGlobalFilterInput } from "./table-global-filter-input";
 export { TableProgressBar } from "./table-progress-bar";
+export { getTableSelectColumn } from "./table-select-column";
 export {
   TableProvider,
   useOptionalTableContext,

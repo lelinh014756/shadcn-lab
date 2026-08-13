@@ -12,7 +12,7 @@ import type { ColumnDef, Row, RowData, Table } from "@tanstack/react-table";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import * as React from "react";
 
-import { Checkbox } from "@/components/ui/checkbox";
+import { getTableSelectColumn } from "@/components/table/table-select-column";
 import { DISPLAY_COLUMN_IDS, type TableLocalization } from "@/types/table";
 
 /**
@@ -40,61 +40,41 @@ interface UseTableDisplayColumnsProps<TData extends RowData> {
   }) => React.ReactNode;
 }
 
-function buildSelectColumn<TData extends RowData>(
-  localization: TableLocalization,
-): AnyColumnDef<TData> {
-  return {
-    id: DISPLAY_COLUMN_IDS.select,
-    size: 40,
-    minSize: 40,
-    maxSize: 40,
-    enableSorting: false,
-    enableHiding: false,
-    enableResizing: false,
-    enableColumnFilter: false,
-    meta: { label: localization.select, align: "center" },
-    header: ({ table }) => (
-      <Checkbox
-        aria-label={localization.toggleSelectAll}
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        aria-label={localization.toggleSelectRow}
-        checked={row.getIsSelected()}
-        disabled={!row.getCanSelect()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-      />
-    ),
-  };
-}
+/**
+ * Một cột duy nhất cho STT và ô chọn dòng.
+ *
+ * Tách làm hai cột thì tắt "chọn nhiều dòng" sẽ mất luôn STT, mà để cạnh nhau
+ * lại tốn hai cột cho cùng một chỗ. Gộp lại: STT hiện mặc định, hover hoặc khi
+ * dòng được chọn mới đổi thành checkbox — giống hệt data-grid.
+ */
+function buildSelectColumn<TData extends RowData>({
+  localization,
+  enableRowNumbers,
+  enableRowSelection,
+}: {
+  localization: TableLocalization;
+  enableRowNumbers: boolean;
+  enableRowSelection: boolean;
+}): AnyColumnDef<TData> {
+  // Vừa số vừa checkbox cần rộng hơn ô chọn thuần.
+  const size = enableRowNumbers ? 52 : 40;
 
-function buildRowNumbersColumn<TData extends RowData>(
-  localization: TableLocalization,
-): AnyColumnDef<TData> {
-  return {
-    id: DISPLAY_COLUMN_IDS.numbers,
-    size: 52,
-    minSize: 52,
-    maxSize: 72,
+  return getTableSelectColumn<TData>({
+    id: DISPLAY_COLUMN_IDS.select,
+    size,
+    minSize: size,
+    maxSize: enableRowNumbers ? 72 : 40,
+    enableRowMarkers: enableRowNumbers,
+    readOnly: !enableRowSelection,
     enableSorting: false,
     enableHiding: false,
     enableResizing: false,
     enableColumnFilter: false,
-    meta: { label: localization.rowNumbers, align: "center" },
-    header: () => localization.rowNumber,
-    cell: ({ row, table }) => {
-      const { pageIndex, pageSize } = table.getState().pagination;
-      // Continue numbering across pages when pagination is manual/server-side.
-      const offset = table.options.manualPagination ? pageIndex * pageSize : 0;
-      return offset + row.index + 1;
+    meta: {
+      label: enableRowSelection ? localization.select : localization.rowNumbers,
+      align: "center",
     },
-  };
+  }) as AnyColumnDef<TData>;
 }
 
 function buildExpandColumn<TData extends RowData>(
@@ -174,12 +154,15 @@ export function useTableDisplayColumns<TData extends RowData>({
       );
     }
 
-    if (enableRowSelection) {
-      leading.push(buildSelectColumn<TData>(localization));
-    }
-
-    if (enableRowNumbers) {
-      leading.push(buildRowNumbersColumn<TData>(localization));
+    // Một cột lo cả STT lẫn ô chọn; chỉ bỏ hẳn khi tắt cả hai.
+    if (enableRowSelection || enableRowNumbers) {
+      leading.push(
+        buildSelectColumn<TData>({
+          localization,
+          enableRowNumbers: !!enableRowNumbers,
+          enableRowSelection: !!enableRowSelection,
+        }),
+      );
     }
 
     if (enableRowActions && renderRowActions) {

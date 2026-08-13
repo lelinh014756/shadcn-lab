@@ -36,7 +36,12 @@ export function DataTable<TData extends RowData>({
   ...props
 }: DataTableProps<TData>) {
   const { isFullScreen } = table.getState();
-  const { enableTopToolbar, enableBottomToolbar, slotProps } = table.options;
+  const {
+    enableTopToolbar,
+    enableBottomToolbar,
+    renderTopToolbar,
+    slotProps,
+  } = table.options;
 
   const paperProps = resolveSlotProp(slotProps.paper, { table });
 
@@ -49,14 +54,15 @@ export function DataTable<TData extends RowData>({
         className={cn(
           "flex w-full flex-col gap-2.5",
           isFullScreen &&
-            "fixed inset-0 z-50 h-screen w-screen overflow-auto bg-background p-4",
+            "fixed inset-0 z-50 h-screen w-screen overflow-hidden bg-background p-4",
           paperProps?.className,
           className,
         )}
       >
-        {enableTopToolbar && (
-          <DataTableTopToolbar table={table}>{children}</DataTableTopToolbar>
-        )}
+        {enableTopToolbar &&
+          (renderTopToolbar?.({ table }) ?? (
+            <DataTableTopToolbar table={table}>{children}</DataTableTopToolbar>
+          ))}
         <DataTableContainer table={table} />
         {enableBottomToolbar && <DataTableBottomToolbar table={table} />}
         {actionBar &&

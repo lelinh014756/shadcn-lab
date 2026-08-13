@@ -21,6 +21,7 @@ export function DataTableBody<TData extends RowData>({
 }: DataTableBodyProps<TData>) {
   const { density } = table.getState();
   const {
+    enableColumnBorders,
     localization,
     renderDetailPanel,
     renderEmptyRowsFallback,
@@ -57,7 +58,7 @@ export function DataTableBody<TData extends RowData>({
               data-state={row.getIsSelected() ? "selected" : undefined}
               {...rowProps}
             >
-              {row.getVisibleCells().map((cell) => {
+              {row.getVisibleCells().map((cell, index, cells) => {
                 const cellProps = resolveSlotProp(slotProps.bodyCell, {
                   table,
                   cell,
@@ -79,6 +80,9 @@ export function DataTableBody<TData extends RowData>({
                     className={cn(
                       getDensityCellClass(density),
                       align && getAlignClass(align),
+                      enableColumnBorders &&
+                        index < cells.length - 1 &&
+                        "border-e",
                       cellProps?.className,
                     )}
                   >

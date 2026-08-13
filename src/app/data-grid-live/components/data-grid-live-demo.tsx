@@ -6,7 +6,7 @@ import * as React from "react";
 import { use } from "react";
 import { toast } from "sonner";
 import { DataGrid } from "@/components/data-grid/data-grid";
-import { getDataGridSelectColumn } from "@/components/data-grid/data-grid-select-column";
+import { getTableSelectColumn } from "@/components/table/table-select-column";
 import { DataGridFilterMenu } from "@/components/data-grid/menus/data-grid-filter-menu";
 import { DataGridRowHeightMenu } from "@/components/data-grid/menus/data-grid-row-height-menu";
 import { DataGridSortMenu } from "@/components/data-grid/menus/data-grid-sort-menu";
@@ -105,7 +105,7 @@ export function DataGridLiveDemo() {
 
   const columns = React.useMemo<ColumnDef<SkaterSchema>[]>(
     () => [
-      getDataGridSelectColumn<SkaterSchema>({ enableRowMarkers: true }),
+      getTableSelectColumn<SkaterSchema>({ enableRowMarkers: true }),
       {
         id: "name",
         accessorKey: "name",

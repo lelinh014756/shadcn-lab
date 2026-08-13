@@ -9,7 +9,6 @@ export {
   useDataGridPresence,
 } from "./data-grid-presence";
 export { DataGridSearch } from "./data-grid-search";
-export { getDataGridSelectColumn } from "./data-grid-select-column";
 export { DataGridSkeleton } from "./data-grid-skeleton";
 export { DataGridColumnHeader } from "./head/data-grid-column-header";
 export { DataGridContextMenu } from "./menus/data-grid-context-menu";

@@ -12,7 +12,7 @@ import {
   type DataGridCellPresence,
   DataGridPresenceProvider,
 } from "@/components/data-grid/data-grid-presence";
-import { getDataGridSelectColumn } from "@/components/data-grid/data-grid-select-column";
+import { getTableSelectColumn } from "@/components/table/table-select-column";
 import { DataGridFilterMenu } from "@/components/data-grid/menus/data-grid-filter-menu";
 import { DataGridRowHeightMenu } from "@/components/data-grid/menus/data-grid-row-height-menu";
 import { DataGridSortMenu } from "@/components/data-grid/menus/data-grid-sort-menu";
@@ -175,7 +175,7 @@ export function DataGridMultiplayerDemo({
 
   const columns = React.useMemo<ColumnDef<SkaterSchema>[]>(
     () => [
-      getDataGridSelectColumn<SkaterSchema>({ enableRowMarkers: true }),
+      getTableSelectColumn<SkaterSchema>({ enableRowMarkers: true }),
       {
         id: "name",
         accessorKey: "name",

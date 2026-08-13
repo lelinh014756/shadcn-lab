@@ -30,15 +30,7 @@ export function EmployeesDetailPanel({
         <p className="truncate font-medium text-sm">
           {isCollapsed ? "" : (employee?.fullName ?? "Chi tiết nhân viên")}
         </p>
-        <Button
-          aria-label={isCollapsed ? "Mở panel chi tiết" : "Thu gọn panel"}
-          variant="ghost"
-          size="icon"
-          className="size-7 shrink-0"
-          onClick={onToggle}
-        >
-          {isCollapsed ? <PanelRightOpen /> : <PanelRightClose />}
-        </Button>
+      
       </div>
 
       {!isCollapsed && (

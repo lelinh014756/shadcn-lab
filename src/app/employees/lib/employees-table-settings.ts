@@ -131,17 +131,17 @@ export function buildEmployeesColumnSizing(
 export function buildEmployeesColumnOrder(
   settings: EmployeesTableSettings,
 ): string[] {
-  const leading = settings.showMultiRowSelection
-    ? [DISPLAY_COLUMN_IDS.select, DISPLAY_COLUMN_IDS.numbers]
-    : [DISPLAY_COLUMN_IDS.numbers];
-
-  return [...leading, ...settings.columnOrder, DISPLAY_COLUMN_IDS.actions];
+  // STT và ô chọn dùng chung một cột nên chỉ có một id ở đầu, bất kể
+  // `showMultiRowSelection` bật hay tắt.
+  return [
+    DISPLAY_COLUMN_IDS.select,
+    ...settings.columnOrder,
+    DISPLAY_COLUMN_IDS.actions,
+  ];
 }
 
 export function buildEmployeesColumnPinning(settings: EmployeesTableSettings) {
-  const systemLeft = settings.showMultiRowSelection
-    ? [DISPLAY_COLUMN_IDS.select, DISPLAY_COLUMN_IDS.numbers]
-    : [DISPLAY_COLUMN_IDS.numbers];
+  const systemLeft = [DISPLAY_COLUMN_IDS.select];
 
   // Pin left wins when a column is somehow in both lists.
   const userLeft = settings.pinLeftColumns.filter(
@@ -287,4 +287,36 @@ export function buildEmployeesLayoutColumns(): TableColumnLayoutOption[] {
       maxSize: 280,
     },
   ];
+}
+
+// ─── TanStack state → settings (nghịch đảo của các builder ở trên) ───────────
+
+const DATA_COLUMN_IDS = new Set<string>(EMPLOYEES_DATA_COLUMN_ORDER);
+
+/**
+ * Ghim/ẩn cột từ dropdown trên header phải ghi ngược vào settings, vì
+ * `columnPinning` và `columnVisibility` là controlled state do settings lái —
+ * nếu không TanStack sẽ set state rồi bị settings ghi đè lại ngay lần render sau.
+ */
+export function parseEmployeesColumnPinning(state: {
+  left?: string[];
+  right?: string[];
+}): Pick<EmployeesTableSettings, "pinLeftColumns" | "pinRightColumns"> {
+  const keepData = (ids: string[] | undefined) =>
+    (ids ?? []).filter((id) => DATA_COLUMN_IDS.has(id));
+
+  return {
+    pinLeftColumns: keepData(state.left),
+    pinRightColumns: keepData(state.right),
+  };
+}
+
+export function parseEmployeesColumnVisibility(
+  state: Record<string, boolean>,
+): Pick<EmployeesTableSettings, "hiddenColumnIds"> {
+  return {
+    hiddenColumnIds: Object.entries(state)
+      .filter(([id, visible]) => !visible && DATA_COLUMN_IDS.has(id))
+      .map(([id]) => id),
+  };
 }

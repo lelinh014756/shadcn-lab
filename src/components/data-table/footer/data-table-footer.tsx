@@ -21,7 +21,8 @@ export function DataTableFooter<TData extends RowData>({
   table,
 }: DataTableFooterProps<TData>) {
   const { density } = table.getState();
-  const { enableStickyFooter, slotProps } = table.options;
+  const { enableColumnBorders, enableStickyFooter, slotProps } =
+    table.options;
 
   const hasFooter = table
     .getVisibleLeafColumns()
@@ -42,7 +43,7 @@ export function DataTableFooter<TData extends RowData>({
     >
       {table.getFooterGroups().map((footerGroup) => (
         <TableRow key={footerGroup.id} {...footerRowProps}>
-          {footerGroup.headers.map((header) => {
+          {footerGroup.headers.map((header, index, headers) => {
             const cellProps = resolveSlotProp(slotProps.footerCell, {
               table,
               header,
@@ -66,6 +67,7 @@ export function DataTableFooter<TData extends RowData>({
                   getDensityCellClass(density),
                   "font-semibold",
                   align && getAlignClass(align),
+                  enableColumnBorders && index < headers.length - 1 && "border-e",
                   cellProps?.className,
                 )}
               >

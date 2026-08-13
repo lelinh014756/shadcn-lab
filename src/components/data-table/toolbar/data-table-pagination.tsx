@@ -1,4 +1,4 @@
-import type { Table } from "@tanstack/react-table";
+import type { RowData } from "@tanstack/react-table";
 import {
   ChevronLeft,
   ChevronRight,
@@ -15,19 +15,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { TableCoreInstance } from "@/hooks/table/use-table-core";
+import { formatLocalized } from "@/lib/table/localization";
 import { cn } from "@/lib/utils";
 
-interface DataTablePaginationProps<TData> extends React.ComponentProps<"div"> {
-  table: Table<TData>;
+interface DataTablePaginationProps<TData extends RowData>
+  extends React.ComponentProps<"div"> {
+  table: TableCoreInstance<TData>;
   pageSizeOptions?: number[];
 }
 
-export function DataTablePagination<TData>({
+export function DataTablePagination<TData extends RowData>({
   table,
-  pageSizeOptions = [10, 20, 30, 40, 50],
+  pageSizeOptions,
   className,
   ...props
 }: DataTablePaginationProps<TData>) {
+  const { localization } = table.options;
+  const pageSizes = pageSizeOptions ?? table.options.pageSizeOptions;
+
   return (
     <div
       className={cn(
@@ -36,13 +42,18 @@ export function DataTablePagination<TData>({
       )}
       {...props}
     >
+      {/* `getRowCount()` trả về option `rowCount` nên ra tổng thật của server,
+          không phải số dòng của trang hiện tại. Số dòng đã chọn do action bar lo. */}
       <div className="flex-1 whitespace-nowrap text-muted-foreground text-sm">
-        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-        {table.getFilteredRowModel().rows.length} row(s) selected.
+        {formatLocalized(localization.totalItems, {
+          count: table.getRowCount(),
+        })}
       </div>
       <div className="flex flex-col-reverse items-center gap-4 sm:flex-row sm:gap-6 lg:gap-8">
         <div className="flex items-center space-x-2">
-          <p className="whitespace-nowrap font-medium text-sm">Rows per page</p>
+          <p className="whitespace-nowrap font-medium text-sm">
+            {localization.rowsPerPage}
+          </p>
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
@@ -54,7 +65,7 @@ export function DataTablePagination<TData>({
             </SelectTrigger>
             <SelectContent side="top">
               <SelectGroup>
-                {pageSizeOptions.map((pageSize) => (
+                {pageSizes.map((pageSize) => (
                   <SelectItem key={pageSize} value={`${pageSize}`}>
                     {pageSize}
                   </SelectItem>
@@ -64,12 +75,14 @@ export function DataTablePagination<TData>({
           </Select>
         </div>
         <div className="flex items-center justify-center font-medium text-sm">
-          Page {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount()}
+          {formatLocalized(localization.pageOf, {
+            page: table.getState().pagination.pageIndex + 1,
+            total: table.getPageCount(),
+          })}
         </div>
         <div className="flex items-center space-x-2">
           <Button
-            aria-label="Go to first page"
+            aria-label={localization.goToFirstPage}
             variant="outline"
             size="icon"
             className="hidden size-8 lg:flex"
@@ -79,7 +92,7 @@ export function DataTablePagination<TData>({
             <ChevronsLeft />
           </Button>
           <Button
-            aria-label="Go to previous page"
+            aria-label={localization.goToPreviousPage}
             variant="outline"
             size="icon"
             className="size-8"
@@ -89,7 +102,7 @@ export function DataTablePagination<TData>({
             <ChevronLeft />
           </Button>
           <Button
-            aria-label="Go to next page"
+            aria-label={localization.goToNextPage}
             variant="outline"
             size="icon"
             className="size-8"
@@ -99,7 +112,7 @@ export function DataTablePagination<TData>({
             <ChevronRight />
           </Button>
           <Button
-            aria-label="Go to last page"
+            aria-label={localization.goToLastPage}
             variant="outline"
             size="icon"
             className="hidden size-8 lg:flex"

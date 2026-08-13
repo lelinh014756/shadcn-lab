@@ -199,6 +199,30 @@
         {
           "type": "registry:component",
           "path": "src/components/table/table-toolbar-internal-buttons.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/data-table/head/data-table-column-resizer.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/data-table/head/data-table-head-menu.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/data-table/toolbar/data-table-action-bar.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/table/table-select-column.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/ui/action-bar.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/lib/export.ts"
         }
       ]
     },
@@ -613,6 +637,10 @@
         {
           "type": "registry:component",
           "path": "src/hooks/data-grid/use-data-grid-store.ts"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/table/table-select-column.tsx"
         }
       ]
     },
@@ -631,7 +659,7 @@
         {
           "type": "registry:component",
           "target": "src/components/data-grid/data-grid-select-column.tsx",
-          "path": "src/components/data-grid/data-grid-select-column.tsx"
+          "path": "src/components/table/table-select-column.tsx"
         }
       ]
     },
