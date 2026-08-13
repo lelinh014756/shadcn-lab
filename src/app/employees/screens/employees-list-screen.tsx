@@ -12,7 +12,7 @@
  * Filters and the selected row live in the URL so the whole view is shareable.
  */
 
-import { RefreshCw, UserPlus } from "lucide-react";
+import { Filter, RefreshCw, UserPlus } from "lucide-react";
 import {
   parseAsBoolean,
   parseAsInteger,
@@ -193,7 +193,18 @@ export function EmployeesListScreen() {
             className="h-8 w-56"
           />
 
-          <FilterSelect
+          <Button
+            aria-label="Tải lại"
+            variant="outline"
+            size="icon"
+            className="size-8"
+          >
+            <Filter
+              className={list.isLoading ? "animate-spin" : undefined}
+            />
+          </Button>
+
+          {/* <FilterSelect
             label="Đơn vị"
             value={search.org}
             options={organizations}
@@ -210,7 +221,7 @@ export function EmployeesListScreen() {
             value={search.status}
             options={staffStatuses.map((s) => ({ id: s.id, name: s.label }))}
             onChange={(value) => void setSearch({ status: value, page: 1 })}
-          />
+          /> */}
 
           <Button
             aria-label="Tải lại"
