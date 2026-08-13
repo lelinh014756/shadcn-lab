@@ -18,7 +18,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-import { createTask } from "../lib/actions";
+import { createTask } from "@/mocks/tasks";
 import type { CreateTaskSchema } from "../lib/validations";
 import { createTaskSchema } from "../lib/validations";
 import { TaskForm } from "./task-form";

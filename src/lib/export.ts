@@ -1,10 +1,12 @@
 import type { Table } from "@tanstack/react-table";
 
+import type { DisplayColumnId } from "@/types/table";
+
 export function exportTableToCSV<TData>(
   table: Table<TData>,
   opts: {
     filename?: string;
-    excludeColumns?: (keyof TData | "select" | "actions")[];
+    excludeColumns?: (keyof TData | DisplayColumnId)[];
     onlySelected?: boolean;
   } = {},
 ): void {

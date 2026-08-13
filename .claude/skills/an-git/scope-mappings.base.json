@@ -1,0 +1,61 @@
+{
+  "_comment": "Base scope mappings — portable, dùng cho mọi dự án. Project-specific scopes đặt tại scope-mappings.project.json. detect_scope.py merge cả 2 file.",
+  "_format": "{ scope, patterns: [substring_match], description }",
+  "mappings": [
+    {
+      "scope": "auth",
+      "patterns": ["Auth", "Jwt", "Token", "Login", "Logout", "Password", "Permission", "Role"],
+      "description": "Xác thực, phân quyền: JWT, token, đăng nhập, RBAC"
+    },
+    {
+      "scope": "api",
+      "patterns": ["ApiHost", "Controllers", "Middleware", "Filters", "Program.cs", "api/", "src/api"],
+      "description": "API endpoints, controllers, middleware"
+    },
+    {
+      "scope": "infra",
+      "patterns": ["Infrastructure", "Repositories", "Persistence", "Migrations", "infra/"],
+      "description": "Infrastructure layer: repositories, ORM, migrations"
+    },
+    {
+      "scope": "domain",
+      "patterns": ["src/Domain", "domain/"],
+      "description": "Domain layer: entities, value objects, domain events"
+    },
+    {
+      "scope": "shared",
+      "patterns": ["src/Shared", "shared/", "common/"],
+      "description": "Shared utilities, extensions, base classes"
+    },
+    {
+      "scope": "docs",
+      "patterns": [".md", ".txt", "docs/", "README", "CHANGELOG", "CONTRIBUTING"],
+      "description": "Tài liệu kỹ thuật"
+    },
+    {
+      "scope": "config",
+      "patterns": ["appsettings", ".csproj", ".sln", ".slnx", "Directory.Build", ".editorconfig", ".gitignore", "docker-compose", "Dockerfile", "tsconfig", "package.json"],
+      "description": "Cấu hình, project files, build setup"
+    },
+    {
+      "scope": "ci",
+      "patterns": [".github/workflows", ".gitlab-ci", ".circleci", "azure-pipelines", "jenkinsfile"],
+      "description": "CI/CD pipelines"
+    },
+    {
+      "scope": "skill",
+      "patterns": [".claude/skills", ".claude/rules", ".claude/scripts", ".claude/hooks", ".claude/agents"],
+      "description": "Claude skills và AI workflow config"
+    },
+    {
+      "scope": "test",
+      "patterns": ["tests/", "Test", "Spec", ".Tests", "__tests__", ".spec.", ".test."],
+      "description": "Test files"
+    }
+  ],
+  "_detection_rules": {
+    "multiple_matches": "scope xuất hiện nhiều nhất thắng",
+    "no_match": "trả về null, user tự nhập scope",
+    "priority_override": "auth > api > infra > domain > shared (business trước technical)"
+  }
+}

@@ -6,10 +6,9 @@ import PartySocket from "partysocket";
 import * as React from "react";
 import { skaterSchema } from "@/app/data-grid-live/lib/validation";
 import { multiplayerCollection } from "@/app/data-grid-multiplayer/lib/multiplayer-collection";
-import { env } from "@/env";
 import { generateId } from "@/lib/id";
 
-const PARTYKIT_HOST = env.NEXT_PUBLIC_PARTYKIT_HOST ?? "localhost:1999";
+const PARTYKIT_HOST = process.env.NEXT_PUBLIC_PARTYKIT_HOST ?? "localhost:1999";
 const STORAGE_KEY = "multiplayer-identity";
 
 interface Identity {

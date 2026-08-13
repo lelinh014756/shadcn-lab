@@ -1,6 +1,6 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
+import type { ColumnDef, Row } from "@tanstack/react-table";
 import {
   ArrowUpDown,
   CalendarIcon,
@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import * as React from "react";
 import { toast } from "sonner";
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header";
+import { DataTableColumnHeader } from "@/components/data-table/head/data-table-column-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -27,55 +27,31 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { type Task, tasks } from "@/db/schema";
 import { formatDate } from "@/lib/format";
 import { getErrorMessage } from "@/lib/handle-error";
+import {
+  getPriorityIcon,
+  getStatusIcon,
+  type Task,
+  taskLabels,
+  taskPriorities,
+  taskStatuses,
+  updateTask,
+} from "@/mocks/tasks";
 import type { DataTableRowAction } from "@/types/data-table";
-
-import { updateTask } from "../lib/actions";
-import { getPriorityIcon, getStatusIcon } from "../lib/utils";
 
 interface GetTasksTableColumnsProps {
   statusCounts: Record<Task["status"], number>;
   priorityCounts: Record<Task["priority"], number>;
   estimatedHoursRange: { min: number; max: number };
-  setRowAction: React.Dispatch<
-    React.SetStateAction<DataTableRowAction<Task> | null>
-  >;
 }
 
 export function getTasksTableColumns({
   statusCounts,
   priorityCounts,
   estimatedHoursRange,
-  setRowAction,
 }: GetTasksTableColumnsProps): ColumnDef<Task>[] {
   return [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          aria-label="Select all"
-          className="translate-y-0.5"
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          aria-label="Select row"
-          className="translate-y-0.5"
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-        />
-      ),
-      enableHiding: false,
-      enableSorting: false,
-      size: 40,
-    },
     {
       id: "code",
       accessorKey: "code",
@@ -93,9 +69,7 @@ export function getTasksTableColumns({
         <DataTableColumnHeader column={column} label="Title" />
       ),
       cell: ({ row }) => {
-        const label = tasks.label.enumValues.find(
-          (label) => label === row.original.label,
-        );
+        const label = taskLabels.find((label) => label === row.original.label);
 
         return (
           <div className="flex items-center gap-2">
@@ -121,7 +95,7 @@ export function getTasksTableColumns({
         <DataTableColumnHeader column={column} label="Status" />
       ),
       cell: ({ cell }) => {
-        const status = tasks.status.enumValues.find(
+        const status = taskStatuses.find(
           (status) => status === cell.getValue<Task["status"]>(),
         );
 
@@ -139,7 +113,7 @@ export function getTasksTableColumns({
       meta: {
         label: "Status",
         variant: "multiSelect",
-        options: tasks.status.enumValues.map((status) => ({
+        options: taskStatuses.map((status) => ({
           label: status.charAt(0).toUpperCase() + status.slice(1),
           value: status,
           count: statusCounts[status],
@@ -156,7 +130,7 @@ export function getTasksTableColumns({
         <DataTableColumnHeader column={column} label="Priority" />
       ),
       cell: ({ cell }) => {
-        const priority = tasks.priority.enumValues.find(
+        const priority = taskPriorities.find(
           (priority) => priority === cell.getValue<Task["priority"]>(),
         );
 
@@ -174,7 +148,7 @@ export function getTasksTableColumns({
       meta: {
         label: "Priority",
         variant: "multiSelect",
-        options: tasks.priority.enumValues.map((priority) => ({
+        options: taskPriorities.map((priority) => ({
           label: priority.charAt(0).toUpperCase() + priority.slice(1),
           value: priority,
           count: priorityCounts[priority],
@@ -217,73 +191,81 @@ export function getTasksTableColumns({
       },
       enableColumnFilter: true,
     },
-    {
-      id: "actions",
-      cell: function Cell({ row }) {
-        const [isUpdatePending, startUpdateTransition] = React.useTransition();
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                aria-label="Open menu"
-                variant="ghost"
-                className="flex size-8 p-0 data-[state=open]:bg-muted"
-              >
-                <Ellipsis className="size-4" aria-hidden="true" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem
-                onSelect={() => setRowAction({ row, variant: "update" })}
-              >
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
-                <DropdownMenuSubContent>
-                  <DropdownMenuRadioGroup
-                    value={row.original.label}
-                    onValueChange={(value) => {
-                      startUpdateTransition(() => {
-                        toast.promise(
-                          updateTask({
-                            id: row.original.id,
-                            label: value as Task["label"],
-                          }),
-                          {
-                            loading: "Updating...",
-                            success: "Label updated",
-                            error: (err) => getErrorMessage(err),
-                          },
-                        );
-                      });
-                    }}
-                  >
-                    {tasks.label.enumValues.map((label) => (
-                      <DropdownMenuRadioItem
-                        key={label}
-                        value={label}
-                        className="capitalize"
-                        disabled={isUpdatePending}
-                      >
-                        {label}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onSelect={() => setRowAction({ row, variant: "delete" })}
-              >
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-      size: 40,
-    },
   ];
+}
+
+interface TasksRowActionsProps {
+  row: Row<Task>;
+  setRowAction: React.Dispatch<
+    React.SetStateAction<DataTableRowAction<Task> | null>
+  >;
+}
+
+/**
+ * Row actions live outside the column list now — the core injects the
+ * `dt-row-actions` display column and calls this through `renderRowActions`.
+ */
+export function TasksRowActions({ row, setRowAction }: TasksRowActionsProps) {
+  const [isUpdatePending, startUpdateTransition] = React.useTransition();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          aria-label="Open menu"
+          variant="ghost"
+          className="flex size-8 p-0 data-[state=open]:bg-muted"
+        >
+          <Ellipsis className="size-4" aria-hidden="true" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-40">
+        <DropdownMenuItem
+          onSelect={() => setRowAction({ row, variant: "update" })}
+        >
+          Edit
+        </DropdownMenuItem>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>Labels</DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <DropdownMenuRadioGroup
+              value={row.original.label}
+              onValueChange={(value) => {
+                startUpdateTransition(() => {
+                  toast.promise(
+                    updateTask({
+                      id: row.original.id,
+                      label: value as Task["label"],
+                    }),
+                    {
+                      loading: "Updating...",
+                      success: "Label updated",
+                      error: (err) => getErrorMessage(err),
+                    },
+                  );
+                });
+              }}
+            >
+              {taskLabels.map((label) => (
+                <DropdownMenuRadioItem
+                  key={label}
+                  value={label}
+                  className="capitalize"
+                  disabled={isUpdatePending}
+                >
+                  {label}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onSelect={() => setRowAction({ row, variant: "delete" })}
+        >
+          Delete
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }

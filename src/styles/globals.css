@@ -137,6 +137,17 @@
     }
   }
 
+  --animate-table-progress: table-progress 1.2s ease-in-out infinite;
+
+  @keyframes table-progress {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(400%);
+    }
+  }
+
   --font-heading: var(--font-sans);
 
   --radius-2xl: calc(var(--radius) * 1.8);

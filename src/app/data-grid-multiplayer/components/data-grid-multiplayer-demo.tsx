@@ -7,53 +7,58 @@ import * as React from "react";
 import { toast } from "sonner";
 import { DataGridActionBar } from "@/app/data-grid-live/components/data-grid-action-bar";
 import type { SkaterSchema } from "@/app/data-grid-live/lib/validation";
-import {
-  getSkaterStatusIcon,
-  getStanceIcon,
-  getStyleIcon,
-} from "@/app/lib/utils";
 import { DataGrid } from "@/components/data-grid/data-grid";
-import { DataGridFilterMenu } from "@/components/data-grid/data-grid-filter-menu";
-import { DataGridKeyboardShortcuts } from "@/components/data-grid/data-grid-keyboard-shortcuts";
 import {
   type DataGridCellPresence,
   DataGridPresenceProvider,
 } from "@/components/data-grid/data-grid-presence";
-import { DataGridRowHeightMenu } from "@/components/data-grid/data-grid-row-height-menu";
 import { getDataGridSelectColumn } from "@/components/data-grid/data-grid-select-column";
-import { DataGridSortMenu } from "@/components/data-grid/data-grid-sort-menu";
-import { DataGridViewMenu } from "@/components/data-grid/data-grid-view-menu";
+import { DataGridFilterMenu } from "@/components/data-grid/menus/data-grid-filter-menu";
+import { DataGridRowHeightMenu } from "@/components/data-grid/menus/data-grid-row-height-menu";
+import { DataGridSortMenu } from "@/components/data-grid/menus/data-grid-sort-menu";
+import { DataGridKeyboardShortcuts } from "@/components/data-grid/modals/data-grid-keyboard-shortcuts";
+import { TableColumnVisibilityMenu } from "@/components/table/table-column-visibility-menu";
 import { Button } from "@/components/ui/button";
-import { skaters } from "@/db/schema";
-import { type UseDataGridProps, useDataGrid } from "@/hooks/use-data-grid";
+import {
+  type UseDataGridProps,
+  useDataGrid,
+} from "@/hooks/data-grid/use-data-grid";
 import {
   type UndoRedoCellUpdate,
   useDataGridUndoRedo,
-} from "@/hooks/use-data-grid-undo-redo";
+} from "@/hooks/data-grid/use-data-grid-undo-redo";
 import { useMultiplayerRoom } from "@/hooks/use-multiplayer-room";
 import { useWindowSize } from "@/hooks/use-window-size";
 import { getCellKey } from "@/lib/data-grid";
 import { getFilterFn } from "@/lib/data-grid-filters";
 import { generateId } from "@/lib/id";
 import {
+  getSkaterStatusIcon,
+  getStanceIcon,
+  getStyleIcon,
+  skaterStances,
+  skaterStatuses,
+  skaterStyles,
+} from "@/mocks/skaters";
+import {
   multiplayerCollection,
   serializeSkater,
 } from "../lib/multiplayer-collection";
 import { DataGridPresenceAvatars } from "./data-grid-presence-avatars";
 
-const stanceOptions = skaters.stance.enumValues.map((stance) => ({
+const stanceOptions = skaterStances.map((stance) => ({
   label: stance.charAt(0).toUpperCase() + stance.slice(1),
   value: stance,
   icon: getStanceIcon(stance),
 }));
 
-const styleOptions = skaters.style.enumValues.map((style) => ({
+const styleOptions = skaterStyles.map((style) => ({
   label: style.charAt(0).toUpperCase() + style.slice(1).replace("-", " "),
   value: style,
   icon: getStyleIcon(style),
 }));
 
-const statusOptions = skaters.status.enumValues.map((status) => ({
+const statusOptions = skaterStatuses.map((status) => ({
   label: status.charAt(0).toUpperCase() + status.slice(1),
   value: status,
   icon: getSkaterStatusIcon(status),
@@ -380,7 +385,9 @@ export function DataGridMultiplayerDemo({
     [trackRowsDelete, sendRowsDelete],
   );
 
-  const { table, tableMeta, ...dataGridProps } = useDataGrid({
+  const height = Math.max(400, windowSize.height - 200);
+
+  const table = useDataGrid({
     data,
     onDataChange,
     onRowAdd,
@@ -393,7 +400,10 @@ export function DataGridMultiplayerDemo({
     manualSorting: true,
     enableSearch: true,
     enablePaste: true,
+    height,
   });
+
+  const { tableMeta } = table.grid;
 
   const focusedRowIndex = tableMeta.focusedCell?.rowIndex ?? null;
   const focusedColumnId = tableMeta.focusedCell?.columnId ?? null;
@@ -488,7 +498,6 @@ export function DataGridMultiplayerDemo({
       .then(() => toast.success("Room link copied"));
   }, [roomId]);
 
-  const height = Math.max(400, windowSize.height - 200);
   const selectedCellCount = tableMeta.selectionState?.selectedCells.size ?? 0;
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: data is a proxy for row-order changes
@@ -543,16 +552,11 @@ export function DataGridMultiplayerDemo({
           <DataGridFilterMenu table={table} align="end" />
           <DataGridSortMenu table={table} align="end" />
           <DataGridRowHeightMenu table={table} align="end" />
-          <DataGridViewMenu table={table} align="end" />
+          <TableColumnVisibilityMenu table={table} align="end" />
         </div>
       </div>
       <DataGridPresenceProvider value={remoteCells}>
-        <DataGrid
-          {...dataGridProps}
-          table={table}
-          tableMeta={tableMeta}
-          height={height}
-        />
+        <DataGrid table={table} />
       </DataGridPresenceProvider>
       <DataGridActionBar
         table={table}

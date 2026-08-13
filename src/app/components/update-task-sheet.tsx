@@ -15,9 +15,9 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import type { Task } from "@/db/schema";
+import type { Task } from "@/mocks/tasks";
 
-import { updateTask } from "../lib/actions";
+import { updateTask } from "@/mocks/tasks";
 import { type UpdateTaskSchema, updateTaskSchema } from "../lib/validations";
 import { TaskForm } from "./task-form";
 

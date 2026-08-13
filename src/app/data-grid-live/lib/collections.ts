@@ -1,22 +1,29 @@
 import { queryCollectionOptions } from "@tanstack/query-db-collection";
 import { createCollection } from "@tanstack/react-db";
 import { QueryClient } from "@tanstack/react-query";
-import { getAbsoluteUrl } from "@/lib/utils";
+
+import {
+  deleteSkaters,
+  insertSkaters,
+  listSkaters,
+  updateSkaters,
+} from "@/mocks/skaters";
 import { type SkaterSchema, skaterSchema } from "./validation";
 
 const queryClient = new QueryClient();
 
+/**
+ * Backed by the in-memory mock store instead of `/api/skaters`.
+ * The optimistic-mutation surface is unchanged — only the transport is.
+ */
 export const skatersCollection = createCollection(
   queryCollectionOptions({
     id: "skaters",
     queryKey: ["skaters"],
     queryClient,
     queryFn: async (): Promise<SkaterSchema[]> => {
-      const response = await fetch(getAbsoluteUrl("/api/skaters"));
-      if (!response.ok) {
-        throw new Error("Failed to fetch skaters");
-      }
-      const data = skaterSchema.array().safeParse(await response.json()).data;
+      const rows = await listSkaters();
+      const data = skaterSchema.array().safeParse(rows).data;
 
       if (!data) {
         throw new Error("Failed to parse skaters");
@@ -41,16 +48,7 @@ export const skatersCollection = createCollection(
 
       if (skatersToInsert.length === 0) return;
 
-      // Use bulk insert - single DB query for all inserts
-      const response = await fetch(getAbsoluteUrl("/api/skaters"), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ skaters: skatersToInsert }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create skaters");
-      }
+      await insertSkaters(skatersToInsert);
     },
     onUpdate: async ({ transaction }) => {
       const updates = transaction.mutations
@@ -66,16 +64,7 @@ export const skatersCollection = createCollection(
 
       if (updates.length === 0) return;
 
-      // Use bulk update - optimized for same-changes case
-      const response = await fetch(getAbsoluteUrl("/api/skaters"), {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ updates }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update skaters");
-      }
+      await updateSkaters(updates);
     },
     onDelete: async ({ transaction }) => {
       const ids = transaction.mutations
@@ -84,16 +73,7 @@ export const skatersCollection = createCollection(
 
       if (ids.length === 0) return;
 
-      // Use bulk delete - single DB query for all deletes
-      const response = await fetch(getAbsoluteUrl("/api/skaters"), {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to delete skaters");
-      }
+      await deleteSkaters(ids);
     },
   }),
 );

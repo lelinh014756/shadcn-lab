@@ -1,0 +1,188 @@
+[
+  {
+    "topic": "adr",
+    "kind": "adr",
+    "template": "adr.md",
+    "pathPattern": "docs/adr/ADR-{NNN}-{slug}.md",
+    "policy": {
+      "adrAutoSuggest": true,
+      "snapshot": false
+    }
+  },
+  {
+    "topic": "api-documentation",
+    "kind": "doc",
+    "template": "api-documentation.md",
+    "pathPattern": "docs/api/{slug}.md",
+    "area": "api"
+  },
+  {
+    "topic": "database-schema",
+    "kind": "doc",
+    "template": "database-schema.md",
+    "pathPattern": "docs/database/{slug}.md",
+    "area": "database"
+  },
+  {
+    "topic": "architecture-blueprint",
+    "kind": "doc",
+    "template": "architecture-blueprint.md",
+    "pathPattern": "docs/architecture/{slug}.md",
+    "area": "architecture"
+  },
+  {
+    "topic": "deployment-guide",
+    "kind": "doc",
+    "template": "deployment-guide.md",
+    "pathPattern": "docs/deployment-guide.md",
+    "overwrite": false
+  },
+  {
+    "topic": "brd",
+    "kind": "doc",
+    "template": "brd.md",
+    "pathPattern": "docs/business/brd-{slug}.md",
+    "area": "business",
+    "typeLabel": "Business Requirements Document"
+  },
+  {
+    "topic": "prd",
+    "kind": "doc",
+    "template": "prd.md",
+    "pathPattern": "docs/product/prd-{slug}.md",
+    "area": "product",
+    "typeLabel": "Product Requirements Document"
+  },
+  {
+    "topic": "srs",
+    "kind": "doc",
+    "template": "srs.md",
+    "pathPattern": "docs/specs/srs-{slug}.md",
+    "area": "specs",
+    "typeLabel": "Software Requirements Specification"
+  },
+  {
+    "topic": "feature-spec",
+    "kind": "feature",
+    "template": "feature-spec.md",
+    "pathPattern": "features/{slug}/spec.md",
+    "area": "feature"
+  },
+  {
+    "topic": "generic-doc",
+    "kind": "doc",
+    "template": "generic-doc.md",
+    "pathPattern": "docs/{slug}.md"
+  },
+  {
+    "topic": "tech-spec",
+    "kind": "report",
+    "template": "tech-spec.md",
+    "pathPattern": "reports/research/{timestamp}-tech-spec-{slug}.md",
+    "policy": {
+      "timestamp": "YYMMDD-HHMM",
+      "snapshot": true
+    }
+  },
+  {
+    "topic": "code-review",
+    "kind": "report",
+    "template": "code-review.md",
+    "pathPattern": "reports/code-review/{timestamp}-{slug}.md",
+    "policy": {
+      "timestamp": "YYMMDD-HHMM",
+      "snapshot": true
+    }
+  },
+  {
+    "topic": "status-report",
+    "kind": "report",
+    "template": "status-report.md",
+    "pathPattern": "reports/progress/{timestamp}-{slug}.md",
+    "policy": {
+      "timestamp": "YYMMDD-HHMM",
+      "snapshot": true
+    }
+  },
+  {
+    "topic": "project-summary",
+    "kind": "report",
+    "template": "project-summary.md",
+    "pathPattern": "reports/progress/{timestamp}-{slug}.md",
+    "policy": {
+      "timestamp": "YYMMDD-HHMM",
+      "snapshot": true
+    }
+  },
+  {
+    "topic": "generic-report",
+    "kind": "report",
+    "template": "generic-report.md",
+    "pathPattern": "reports/{type}/{timestamp}-{slug}.md",
+    "policy": {
+      "timestamp": "YYMMDD-HHMM",
+      "snapshot": true,
+      "requireSubtypePrompt": true
+    },
+    "typeLabel": "Generic Report (requires subtype)"
+  },
+  {
+    "topic": "it-project-plan",
+    "kind": "plan",
+    "template": "it-project-plan.md",
+    "pathPattern": "plans/project-plan/{timestamp}-{slug}.md",
+    "policy": {
+      "timestamp": "YYMMDD",
+      "snapshot": false,
+      "clashSuffix": true
+    }
+  },
+  {
+    "topic": "generic-plan",
+    "kind": "plan",
+    "template": "generic-plan.md",
+    "pathPattern": "plans/{timestamp}-{slug}.md",
+    "policy": {
+      "timestamp": "YYMMDD",
+      "snapshot": false,
+      "clashSuffix": true
+    }
+  },
+  {
+    "topic": "system-architecture",
+    "kind": "doc",
+    "template": "architecture-blueprint.md",
+    "pathPattern": "docs/system-architecture.md",
+    "area": "architecture",
+    "typeLabel": "System Architecture"
+  },
+  {
+    "topic": "project-overview-pdr",
+    "kind": "doc",
+    "template": "project-overview-pdr.md",
+    "pathPattern": "docs/project-overview-pdr.md",
+    "area": "product",
+    "typeLabel": "Project Overview / PDR"
+  },
+  {
+    "topic": "roadmap",
+    "kind": "doc",
+    "template": "roadmap.md",
+    "pathPattern": "docs/project-roadmap.md",
+    "area": "plans"
+  },
+  {
+    "topic": "design-guidelines",
+    "kind": "doc",
+    "template": "design-guidelines.md",
+    "pathPattern": "docs/design-guidelines.md",
+    "area": "design"
+  },
+  {
+    "topic": "dotnet-audit-report",
+    "kind": "doc",
+    "template": "dotnet-audit-report.md",
+    "pathPattern": ".claude/docs/dotnet-audit-report.md",
+    "overwrite": true
+  }
+]

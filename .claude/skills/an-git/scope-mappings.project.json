@@ -1,0 +1,34 @@
+{
+  "_comment": "Project-specific scope mappings cho Landsoft-One-BE. File này CÓ THỂ git-ignore nếu muốn isolate từng dự án. Merge với scope-mappings.base.json lúc runtime.",
+  "_format": "{ scope, patterns: [substring_match], description }",
+  "mappings": [
+    {
+      "scope": "investor",
+      "patterns": ["Features/Investors", "Investor"],
+      "description": "Quản lý nhà đầu tư: CQRS features, entities, repositories"
+    },
+    {
+      "scope": "project",
+      "patterns": ["Features/Projects", "Project"],
+      "description": "Quản lý dự án bất động sản"
+    },
+    {
+      "scope": "propdict",
+      "patterns": ["Features/PropDict", "PropDict"],
+      "description": "Từ điển thuộc tính bất động sản"
+    },
+    {
+      "scope": "customer",
+      "patterns": ["Features/Customer", "CustomerDict", "Customer"],
+      "description": "Quản lý khách hàng, customer dictionary"
+    },
+    {
+      "scope": "module",
+      "patterns": ["Features/Module", "SystemModule"],
+      "description": "Module và category hệ thống"
+    }
+  ],
+  "_detection_rules": {
+    "priority_over_base": "project-specific scopes được ưu tiên trước base khi có conflict (business trước technical)"
+  }
+}

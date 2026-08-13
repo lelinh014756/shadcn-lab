@@ -1,0 +1,143 @@
+# Data Fetching
+
+Patterns for fetching data in Next.js 16 App Router.
+
+---
+
+## Strategy Overview
+
+| Scenario | Pattern | Location |
+|----------|---------|----------|
+| Page data (read) | Server Component + `fetch` | `page.tsx` |
+| Interactive data (filters, search) | Client Component + fetch/swr | Module component |
+| Mutations (create, update, delete) | Server Actions or client fetch | Module hooks |
+| Real-time data | Polling or WebSocket | Client component |
+
+---
+
+## Server Component Fetch (Preferred)
+
+Default approach — no client JS, no loading states needed:
+
+```typescript
+// src/app/(dashboard)/projects/page.tsx
+import { AppCard } from "@/components/ui/app-card";
+
+async function getProjects() {
+  const res = await fetch("https://api.example.com/projects", {
+    next: { revalidate: 300 }, // ISR: revalidate every 5 min
+  });
+  if (!res.ok) throw new Error("Failed to fetch projects");
+  return res.json();
+}
+
+export default async function ProjectsPage() {
+  const projects = await getProjects();
+  return <AppCard title="Projects">{/* render projects */}</AppCard>;
+}
+```
+
+**Benefits:** Zero client JS, streaming, automatic deduplication.
+
+---
+
+## Client-Side Fetch (When Interactive)
+
+When page needs filters, search, pagination controlled by user:
+
+```typescript
+"use client";
+
+import { useState, useEffect } from "react";
+import { LoadingBlock } from "@/components/feedback/loading-block";
+import { EmptyState } from "@/components/feedback/empty-state";
+
+type Project = { id: string; name: string };
+
+export function ProjectList() {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/projects")
+      .then((res) => {
+        if (!res.ok) throw new Error("Fetch failed");
+        return res.json();
+      })
+      .then(setProjects)
+      .catch((e) => setError(e.message))
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  if (isLoading) return <LoadingBlock rows={5} />;
+  if (error) return <EmptyState title="Error" description={error} />;
+  if (!projects.length) return <EmptyState title="No projects" />;
+
+  return (
+    <ul>{projects.map((p) => <li key={p.id}>{p.name}</li>)}</ul>
+  );
+}
+```
+
+---
+
+## Server Actions (Mutations)
+
+```typescript
+// src/modules/projects/actions.ts
+"use server";
+
+export async function createProject(formData: FormData) {
+  const name = formData.get("name") as string;
+  // validate + save
+}
+
+// In component
+import { createProject } from "@/modules/projects/actions";
+
+<form action={createProject}>
+  <input name="name" />
+  <button type="submit">Create</button>
+</form>
+```
+
+---
+
+## Fetch Configuration
+
+```typescript
+// Caching strategies
+fetch(url, { cache: "force-cache" });        // Static (default)
+fetch(url, { cache: "no-store" });           // Always fresh
+fetch(url, { next: { revalidate: 300 } });   // ISR: 5 min
+fetch(url, { next: { tags: ["projects"] } }); // On-demand revalidation
+```
+
+---
+
+## Error Handling
+
+```typescript
+// Server component — error.tsx catches this
+if (!res.ok) throw new Error("Failed to fetch");
+
+// Client component — handle inline
+try {
+  const data = await fetch(url);
+} catch (e) {
+  setError(e instanceof Error ? e.message : "Unknown error");
+}
+```
+
+---
+
+## When to Add TanStack Query
+
+Consider adding `@tanstack/react-query` when:
+- Complex cache invalidation across multiple views
+- Optimistic updates required
+- Infinite scroll / cursor pagination
+- Background refetch with stale-while-revalidate
+
+Until then, Server Components + fetch is simpler and sufficient.

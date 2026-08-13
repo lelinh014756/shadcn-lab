@@ -8,6 +8,7 @@ export const siteConfig = {
   links: { github: "https://github.com/sadmann7/tablecn" },
   navLinks: [
     { href: "/", label: "Data Table" },
+    { href: "/employees", label: "Employees" },
     { href: "/data-grid", label: "Data Grid" },
     { href: "/data-grid-live", label: "Data Grid Live" },
     { href: "/data-grid-multiplayer", label: "Data Grid Multiplayer" },

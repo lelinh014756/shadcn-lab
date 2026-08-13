@@ -1,0 +1,40 @@
+import type { StaffDocument } from "../types/staff-document";
+
+export const MOCK_DOCUMENTS: StaffDocument[] = [
+  {
+    id: 1,
+    type: "Hợp đồng lao động",
+    name: "Hợp đồng lao động thử việc",
+    documentNumber: "HĐLĐ/2026/001",
+    issuedDate: "2026-01-15",
+    issuedBy: "Công ty TNHH Landsoft",
+    expiryDate: "2026-04-15",
+    fileUrl: "/files/contracts/staff-001-contract.pdf",
+    note: "Hợp đồng thử việc 3 tháng",
+    createdAt: "2026-01-15T08:00:00Z",
+  },
+  {
+    id: 2,
+    type: "CMND/CCCD",
+    name: "Căn cước công dân",
+    documentNumber: "079096001234",
+    issuedDate: "2022-03-10",
+    issuedBy: "Công an TP.HCM",
+    expiryDate: null,
+    fileUrl: "/files/idcard/staff-001-cccd.pdf",
+    note: "",
+    createdAt: "2026-01-15T08:00:00Z",
+  },
+  {
+    id: 3,
+    type: "Giấy khám sức khỏe",
+    name: "Giấy khám sức khỏe định kỳ",
+    documentNumber: "GKSSK/2026/001",
+    issuedDate: "2026-02-20",
+    issuedBy: "Bệnh viện Quân y 175",
+    expiryDate: "2027-02-20",
+    fileUrl: "/files/medical/staff-001-health.pdf",
+    note: "Kết quả: Đạt",
+    createdAt: "2026-02-20T10:00:00Z",
+  },
+];

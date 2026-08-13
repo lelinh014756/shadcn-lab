@@ -2,47 +2,36 @@
 
 import * as React from "react";
 import { DataTable } from "@/components/data-table/data-table";
-import { DataTableAdvancedToolbar } from "@/components/data-table/data-table-advanced-toolbar";
-import { DataTableFilterList } from "@/components/data-table/data-table-filter-list";
-import { DataTableFilterMenu } from "@/components/data-table/data-table-filter-menu";
-import { DataTableSortList } from "@/components/data-table/data-table-sort-list";
-import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
-import type { Task } from "@/db/schema";
+import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
+import { DataTableFilterList } from "@/components/data-table/menus/data-table-filter-list";
+import { DataTableFilterMenu } from "@/components/data-table/menus/data-table-filter-menu";
+import { DataTableSortList } from "@/components/data-table/menus/data-table-sort-list";
 import { useDataTable } from "@/hooks/use-data-table";
+import type { Task } from "@/mocks/tasks";
 import type { DataTableRowAction, QueryKeys } from "@/types/data-table";
-import type {
-  getEstimatedHoursRange,
-  getTaskPriorityCounts,
-  getTaskStatusCounts,
-  getTasks,
-} from "../lib/queries";
+import { DISPLAY_COLUMN_IDS } from "@/types/table";
+import { useTasksData } from "../hooks/use-tasks-data";
 import { DeleteTasksDialog } from "./delete-tasks-dialog";
 import { useFeatureFlags } from "./feature-flags-provider";
 import { TasksTableActionBar } from "./tasks-table-action-bar";
-import { getTasksTableColumns } from "./tasks-table-columns";
+import { getTasksTableColumns, TasksRowActions } from "./tasks-table-columns";
 import { UpdateTaskSheet } from "./update-task-sheet";
 
 interface TasksTableProps {
-  promises: Promise<
-    [
-      Awaited<ReturnType<typeof getTasks>>,
-      Awaited<ReturnType<typeof getTaskStatusCounts>>,
-      Awaited<ReturnType<typeof getTaskPriorityCounts>>,
-      Awaited<ReturnType<typeof getEstimatedHoursRange>>,
-    ]
-  >;
   queryKeys?: Partial<QueryKeys>;
 }
 
-export function TasksTable({ promises, queryKeys }: TasksTableProps) {
+export function TasksTable({ queryKeys }: TasksTableProps) {
   const { enableAdvancedFilter, filterFlag } = useFeatureFlags();
 
-  const [
-    { data, pageCount },
+  const {
+    data,
+    pageCount,
     statusCounts,
     priorityCounts,
     estimatedHoursRange,
-  ] = React.use(promises);
+    isPending,
+  } = useTasksData({ enableAdvancedFilter });
 
   const [rowAction, setRowAction] =
     React.useState<DataTableRowAction<Task> | null>(null);
@@ -53,7 +42,6 @@ export function TasksTable({ promises, queryKeys }: TasksTableProps) {
         statusCounts,
         priorityCounts,
         estimatedHoursRange,
-        setRowAction,
       }),
     [statusCounts, priorityCounts, estimatedHoursRange],
   );
@@ -65,13 +53,41 @@ export function TasksTable({ promises, queryKeys }: TasksTableProps) {
     enableAdvancedFilter,
     initialState: {
       sorting: [{ id: "createdAt", desc: true }],
-      columnPinning: { right: ["actions"] },
+      columnPinning: { right: [DISPLAY_COLUMN_IDS.actions] },
+      // Advanced mode replaces the per-column filter row with its own builder.
+      showColumnFilters: !enableAdvancedFilter,
     },
+    // The advanced builder owns filtering, so hide the built-in filter toggle.
+    enableColumnFilterToggle: !enableAdvancedFilter,
+    enableRowActions: true,
+    renderRowActions: ({ row }) => (
+      <TasksRowActions row={row} setRowAction={setRowAction} />
+    ),
+    state: { showProgressBars: isPending },
     queryKeys,
     getRowId: (originalRow) => originalRow.id,
     shallow: false,
     clearOnDefault: true,
   });
+
+  if (isPending && data.length === 0) {
+    return (
+      <DataTableSkeleton
+        columnCount={7}
+        filterCount={2}
+        cellWidths={[
+          "10rem",
+          "30rem",
+          "10rem",
+          "10rem",
+          "6rem",
+          "6rem",
+          "6rem",
+        ]}
+        shrinkZero
+      />
+    );
+  }
 
   return (
     <>
@@ -79,31 +95,24 @@ export function TasksTable({ promises, queryKeys }: TasksTableProps) {
         table={table}
         actionBar={<TasksTableActionBar table={table} />}
       >
-        {enableAdvancedFilter ? (
-          <DataTableAdvancedToolbar table={table}>
-            <DataTableSortList table={table} align="start" />
-            {filterFlag === "advancedFilters" ? (
-              <DataTableFilterList
-                table={table}
-                shallow={shallow}
-                debounceMs={debounceMs}
-                throttleMs={throttleMs}
-                align="start"
-              />
-            ) : (
-              <DataTableFilterMenu
-                table={table}
-                shallow={shallow}
-                debounceMs={debounceMs}
-                throttleMs={throttleMs}
-              />
-            )}
-          </DataTableAdvancedToolbar>
-        ) : (
-          <DataTableToolbar table={table}>
-            <DataTableSortList table={table} align="end" />
-          </DataTableToolbar>
-        )}
+        <DataTableSortList table={table} align="start" />
+        {enableAdvancedFilter &&
+          (filterFlag === "advancedFilters" ? (
+            <DataTableFilterList
+              table={table}
+              shallow={shallow}
+              debounceMs={debounceMs}
+              throttleMs={throttleMs}
+              align="start"
+            />
+          ) : (
+            <DataTableFilterMenu
+              table={table}
+              shallow={shallow}
+              debounceMs={debounceMs}
+              throttleMs={throttleMs}
+            />
+          ))}
       </DataTable>
       <UpdateTaskSheet
         open={rowAction?.variant === "update"}

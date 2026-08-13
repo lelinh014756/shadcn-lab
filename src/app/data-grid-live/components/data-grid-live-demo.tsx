@@ -5,28 +5,32 @@ import type { ColumnDef, SortingState } from "@tanstack/react-table";
 import * as React from "react";
 import { use } from "react";
 import { toast } from "sonner";
+import { DataGrid } from "@/components/data-grid/data-grid";
+import { getDataGridSelectColumn } from "@/components/data-grid/data-grid-select-column";
+import { DataGridFilterMenu } from "@/components/data-grid/menus/data-grid-filter-menu";
+import { DataGridRowHeightMenu } from "@/components/data-grid/menus/data-grid-row-height-menu";
+import { DataGridSortMenu } from "@/components/data-grid/menus/data-grid-sort-menu";
+import { DataGridKeyboardShortcuts } from "@/components/data-grid/modals/data-grid-keyboard-shortcuts";
+import { TableColumnVisibilityMenu } from "@/components/table/table-column-visibility-menu";
+import {
+  type UseDataGridProps,
+  useDataGrid,
+} from "@/hooks/data-grid/use-data-grid";
+import {
+  type UndoRedoCellUpdate,
+  useDataGridUndoRedo,
+} from "@/hooks/data-grid/use-data-grid-undo-redo";
+import { useWindowSize } from "@/hooks/use-window-size";
+import { getFilterFn } from "@/lib/data-grid-filters";
+import { generateId } from "@/lib/id";
 import {
   getSkaterStatusIcon,
   getStanceIcon,
   getStyleIcon,
-} from "@/app/lib/utils";
-import { DataGrid } from "@/components/data-grid/data-grid";
-import { DataGridFilterMenu } from "@/components/data-grid/data-grid-filter-menu";
-import { DataGridKeyboardShortcuts } from "@/components/data-grid/data-grid-keyboard-shortcuts";
-import { DataGridRowHeightMenu } from "@/components/data-grid/data-grid-row-height-menu";
-import { getDataGridSelectColumn } from "@/components/data-grid/data-grid-select-column";
-import { DataGridSortMenu } from "@/components/data-grid/data-grid-sort-menu";
-import { DataGridViewMenu } from "@/components/data-grid/data-grid-view-menu";
-import { skaters } from "@/db/schema";
-import { type UseDataGridProps, useDataGrid } from "@/hooks/use-data-grid";
-import {
-  type UndoRedoCellUpdate,
-  useDataGridUndoRedo,
-} from "@/hooks/use-data-grid-undo-redo";
-import { useWindowSize } from "@/hooks/use-window-size";
-import { getFilterFn } from "@/lib/data-grid-filters";
-import { generateId } from "@/lib/id";
-import { useUploadThing } from "@/lib/uploadthing";
+  skaterStances,
+  skaterStatuses,
+  skaterStyles,
+} from "@/mocks/skaters";
 import { skatersCollection } from "../lib/collections";
 import type { SkaterSchema } from "../lib/validation";
 import { DataGridActionBar } from "./data-grid-action-bar";
@@ -49,19 +53,19 @@ const TRICKS = [
   "Smith Grind",
 ] as const;
 
-const stanceOptions = skaters.stance.enumValues.map((stance) => ({
+const stanceOptions = skaterStances.map((stance) => ({
   label: stance.charAt(0).toUpperCase() + stance.slice(1),
   value: stance,
   icon: getStanceIcon(stance),
 }));
 
-const styleOptions = skaters.style.enumValues.map((style) => ({
+const styleOptions = skaterStyles.map((style) => ({
   label: style.charAt(0).toUpperCase() + style.slice(1).replace("-", " "),
   value: style,
   icon: getStyleIcon(style),
 }));
 
-const statusOptions = skaters.status.enumValues.map((status) => ({
+const statusOptions = skaterStatuses.map((status) => ({
   label: status.charAt(0).toUpperCase() + status.slice(1),
   value: status,
   icon: getSkaterStatusIcon(status),
@@ -96,8 +100,6 @@ export function DataGridLiveDemo() {
     },
     [sorting],
   );
-
-  const { startUpload } = useUploadThing("skaterMedia");
 
   const filterFn = React.useMemo(() => getFilterFn<SkaterSchema>(), []);
 
@@ -439,55 +441,29 @@ export function DataGridLiveDemo() {
 
   const onFilesUpload: NonNullable<
     UseDataGridProps<SkaterSchema>["onFilesUpload"]
-  > = React.useCallback(
-    async ({ files }) => {
-      // Try to upload via UploadThing, fall back to simulation if not configured
-      try {
-        const uploadedFiles = await startUpload(files);
+  > = React.useCallback(async ({ files }) => {
+    // Mock upload: no storage provider is wired up in this demo.
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
-        if (uploadedFiles) {
-          return uploadedFiles.map((file) => ({
-            id: file.key,
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            url: file.ufsUrl,
-          }));
-        }
-      } catch {
-        // UploadThing not configured, fall back to simulation
-      }
-
-      // Simulate upload for demo/development without UploadThing
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      return files.map((file) => ({
-        id: crypto.randomUUID(),
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        url: URL.createObjectURL(file),
-      }));
-    },
-    [startUpload],
-  );
+    return files.map((file) => ({
+      id: crypto.randomUUID(),
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      url: URL.createObjectURL(file),
+    }));
+  }, []);
 
   const onFilesDelete: NonNullable<
     UseDataGridProps<SkaterSchema>["onFilesDelete"]
   > = React.useCallback(async ({ fileIds }) => {
-    // Try to delete from UploadThing, silently fail if not configured
-    try {
-      await fetch("/api/uploadthing/delete", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fileKeys: fileIds }),
-      });
-    } catch {
-      // UploadThing not configured or delete failed, ignore
-    }
+    // Mock delete: object URLs are revoked by the browser on unload.
+    console.log(`Deleting ${fileIds.length} file(s)`, fileIds);
   }, []);
 
-  const { table, tableMeta, ...dataGridProps } = useDataGrid({
+  const height = Math.max(400, windowSize.height - 150);
+
+  const table = useDataGrid({
     data,
     onDataChange,
     onRowAdd,
@@ -507,7 +483,10 @@ export function DataGridLiveDemo() {
     manualSorting: true,
     enableSearch: true,
     enablePaste: true,
+    height,
   });
+
+  const { tableMeta } = table.grid;
 
   const onStatusUpdate = React.useCallback(
     (value: string) => {
@@ -576,7 +555,6 @@ export function DataGridLiveDemo() {
     table.toggleAllRowsSelected(false);
   }, [table, tableMeta]);
 
-  const height = Math.max(400, windowSize.height - 150);
   const selectedCellCount = tableMeta.selectionState?.selectedCells.size ?? 0;
 
   return (
@@ -596,14 +574,9 @@ export function DataGridLiveDemo() {
         <DataGridFilterMenu table={table} align="end" />
         <DataGridSortMenu table={table} align="end" />
         <DataGridRowHeightMenu table={table} align="end" />
-        <DataGridViewMenu table={table} align="end" />
+        <TableColumnVisibilityMenu table={table} align="end" />
       </div>
-      <DataGrid
-        {...dataGridProps}
-        table={table}
-        tableMeta={tableMeta}
-        height={height}
-      />
+      <DataGrid table={table} />
       <DataGridActionBar
         table={table}
         tableMeta={tableMeta}

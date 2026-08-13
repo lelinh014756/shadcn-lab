@@ -2,13 +2,13 @@
 
 import { Plus } from "lucide-react";
 import * as React from "react";
-import { DataGridColumnHeader } from "@/components/data-grid/data-grid-column-header";
-import { DataGridContextMenu } from "@/components/data-grid/data-grid-context-menu";
-import { DataGridPasteDialog } from "@/components/data-grid/data-grid-paste-dialog";
-import { DataGridRow } from "@/components/data-grid/data-grid-row";
+import { DataGridRow } from "@/components/data-grid/body/data-grid-row";
 import { DataGridSearch } from "@/components/data-grid/data-grid-search";
+import { DataGridColumnHeader } from "@/components/data-grid/head/data-grid-column-header";
+import { DataGridContextMenu } from "@/components/data-grid/menus/data-grid-context-menu";
+import { DataGridPasteDialog } from "@/components/data-grid/modals/data-grid-paste-dialog";
+import type { DataGridInstance } from "@/hooks/data-grid/use-data-grid";
 import { useAsRef } from "@/hooks/use-as-ref";
-import type { useDataGrid } from "@/hooks/use-data-grid";
 import {
   flexRender,
   getColumnBorderVisibility,
@@ -19,43 +19,50 @@ import type { Direction } from "@/types/data-grid";
 
 const EMPTY_CELL_SELECTION_SET = new Set<string>();
 
+/**
+ * The grid renderer. Takes the instance and nothing else — every ref, virtual
+ * item and piece of grid state rides on `table.grid`, the same contract
+ * `<DataTable>` follows.
+ *
+ *   <DataGrid table={table} />
+ */
 interface DataGridProps<TData>
-  extends Omit<ReturnType<typeof useDataGrid<TData>>, "dir">,
-    Omit<React.ComponentProps<"div">, "contextMenu"> {
-  dir?: Direction;
-  height?: number;
-  stretchColumns?: boolean;
+  extends Omit<React.ComponentProps<"div">, "contextMenu"> {
+  table: DataGridInstance<TData>;
 }
 
 export function DataGrid<TData>({
-  dataGridRef,
-  headerRef,
-  rowMapRef,
-  footerRef,
-  dir = "ltr",
   table,
-  tableMeta,
-  virtualTotalSize,
-  virtualItems,
-  measureElement,
-  columns,
-  columnSizeVars,
-  searchState,
-  searchMatchesByRow,
-  activeSearchMatch,
-  cellSelectionMap,
-  focusedCell,
-  editingCell,
-  rowHeight,
-  contextMenu,
-  pasteDialog,
-  onRowAdd: onRowAddProp,
-  height = 600,
-  stretchColumns = false,
-  adjustLayout = false,
   className,
   ...props
 }: DataGridProps<TData>) {
+  const {
+    dataGridRef,
+    headerRef,
+    rowMapRef,
+    footerRef,
+    dir,
+    tableMeta,
+    virtualTotalSize,
+    virtualItems,
+    measureElement,
+    columns,
+    columnSizeVars,
+    searchState,
+    searchMatchesByRow,
+    activeSearchMatch,
+    cellSelectionMap,
+    focusedCell,
+    editingCell,
+    rowHeight,
+    contextMenu,
+    pasteDialog,
+    onRowAdd: onRowAddProp,
+    height,
+    stretchColumns,
+    adjustLayout,
+  } = table.grid;
+
   const rows = table.getRowModel().rows;
   const readOnly = tableMeta?.readOnly ?? false;
   const columnVisibility = table.getState().columnVisibility;

@@ -3,8 +3,9 @@
 import type { Table } from "@tanstack/react-table";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { Task } from "@/db/schema";
 import { exportTableToCSV } from "@/lib/export";
+import type { Task } from "@/mocks/tasks";
+import { DISPLAY_COLUMN_IDS } from "@/types/table";
 
 import { CreateTaskSheet } from "./create-task-sheet";
 import { DeleteTasksDialog } from "./delete-tasks-dialog";
@@ -32,7 +33,10 @@ export function TasksTableToolbarActions({
         onClick={() =>
           exportTableToCSV(table, {
             filename: "tasks",
-            excludeColumns: ["select", "actions"],
+            excludeColumns: [
+              DISPLAY_COLUMN_IDS.select,
+              DISPLAY_COLUMN_IDS.actions,
+            ],
           })
         }
       >

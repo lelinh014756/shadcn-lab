@@ -1,6 +1,5 @@
 import {
   type ColumnFiltersState,
-  getCoreRowModel,
   getFacetedMinMaxValues,
   getFacetedRowModel,
   getFacetedUniqueValues,
@@ -10,10 +9,8 @@ import {
   type PaginationState,
   type RowSelectionState,
   type SortingState,
-  type TableOptions,
   type TableState,
   type Updater,
-  useReactTable,
   type VisibilityState,
 } from "@tanstack/react-table";
 import {
@@ -27,9 +24,15 @@ import {
 } from "nuqs";
 import * as React from "react";
 
+import { useTableCore } from "@/hooks/table/use-table-core";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { getSortingStateParser } from "@/lib/parsers";
 import type { ExtendedColumnSort, QueryKeys } from "@/types/data-table";
+import type {
+  TableCoreOptions,
+  TableCoreState,
+  TableExtraState,
+} from "@/types/table";
 
 const PAGE_KEY = "page";
 const PER_PAGE_KEY = "perPage";
@@ -42,18 +45,29 @@ const THROTTLE_MS = 50;
 
 interface UseDataTableProps<TData>
   extends Omit<
-      TableOptions<TData>,
+      TableCoreOptions<TData>,
       | "state"
+      | "initialState"
       | "pageCount"
-      | "getCoreRowModel"
       | "manualFiltering"
       | "manualPagination"
       | "manualSorting"
     >,
-    Required<Pick<TableOptions<TData>, "pageCount">> {
-  initialState?: Omit<Partial<TableState>, "sorting"> & {
+    Required<Pick<TableCoreOptions<TData>, "pageCount">> {
+  initialState?: Omit<Partial<TableCoreState>, "sorting"> & {
     sorting?: ExtendedColumnSort<TData>[];
   };
+  /**
+   * Pagination, sorting and column filters are owned by the URL and cannot be
+   * controlled here — a caller-supplied value would fight the querystring.
+   * Everything else (presentation state plus the column-layout slice a settings
+   * sheet drives) is fair game.
+   */
+  state?: Partial<TableExtraState> &
+    Pick<
+      Partial<TableState>,
+      "columnOrder" | "columnVisibility" | "columnPinning" | "columnSizing"
+    >;
   queryKeys?: Partial<QueryKeys>;
   history?: "push" | "replace";
   debounceMs?: number;
@@ -70,6 +84,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     columns,
     pageCount = -1,
     initialState,
+    state: extraState,
     queryKeys,
     history = "replace",
     debounceMs = DEBOUNCE_MS,
@@ -265,7 +280,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     [debouncedSetFilterValues, filterableColumns, enableAdvancedFilter],
   );
 
-  const table = useReactTable({
+  const table = useTableCore<TData>({
     ...tableProps,
     columns,
     initialState,
@@ -276,6 +291,7 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
       columnVisibility,
       rowSelection,
       columnFilters,
+      ...extraState,
     },
     defaultColumn: {
       ...tableProps.defaultColumn,
@@ -287,7 +303,6 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
     onSortingChange,
     onColumnFiltersChange,
     onColumnVisibilityChange: setColumnVisibility,
-    getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),

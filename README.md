@@ -15,14 +15,35 @@ See the [documentation](https://diceui.com/docs/components/data-table) to get st
 - **UI Components:** [shadcn/ui](https://ui.shadcn.com)
 - **Table:** [TanStack Table](https://tanstack.com/table/latest)
 - **Reactive store:** [TanStack DB](https://tanstack.com/db/latest)
-- **Database:** [PostgreSQL](https://www.postgresql.org)
-- **ORM:** [Drizzle ORM](https://orm.drizzle.team)
+- **Data:** in-memory mock layer (`src/mocks/`) — no database required
 - **Validation:** [Zod](https://zod.dev)
 - **Multiplayer:** [PartyKit](https://partykit.io)
 
+## Architecture
+
+The table components follow the layering Material React Table uses. The table
+instance is the only transport — renderers, slot props and localization all ride
+on `table.options`, so a renderer takes a single prop:
+
+```tsx
+<DataTable table={table} />
+<DataGrid table={table} />
+```
+
+```
+Screen        compose data + settings + table
+Feature hook  columns + option overrides
+Stack hook    useDataTable / useDataGrid
+Core          useTableCore — defaults, display columns, extra state
+Renderer      <DataTable /> / <DataGrid />
+```
+
+See [`plans/260812-2307-mrt-to-tablecn-mapping/plan.md`](plans/260812-2307-mrt-to-tablecn-mapping/plan.md)
+for the full mapping.
+
 ## Features
 
-- [x] Server-side pagination, sorting, and filtering
+- [x] Pagination, sorting, and filtering
 - [x] Customizable columns
 - [x] Auto generated filters from column definitions
 - [x] `Notion/Airtable` like advanced filtering
@@ -30,62 +51,28 @@ See the [documentation](https://diceui.com/docs/components/data-table) to get st
 - [x] Action bar on row selection
 - [x] Infinite scrolling with virtualization
 - [x] Real-time collaboration
+- [x] Column settings sheet — drag to reorder, resize, pin, hide (persisted)
+- [x] Density and fullscreen toggles
+- [x] Localization (EN / VI)
 
 ## Running Locally
 
-### Quick Setup (with Docker)
+No database, no Docker, no environment variables — all demos run on an in-memory
+mock layer.
 
-1. **Clone the repository**
+```bash
+git clone https://github.com/sadmann7/tablecn
+cd tablecn
+pnpm install
+pnpm dev
+```
 
-   ```bash
-   git clone https://github.com/sadmann7/tablecn
-   cd tablecn
-   ```
+Then open <http://localhost:3006>.
 
-1. **Copy the environment variables**
-
-   ```bash
-   cp .env.example .env
-   ```
-
-1. **Run the setup**
-
-   ```bash
-   pnpm ollie
-   ```
-
-   This installs dependencies, starts the Docker PostgreSQL instance, pushes the schema, and seeds sample data.
-
-### Manual Setup
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/sadmann7/tablecn
-   cd tablecn
-   ```
-
-1. **Install dependencies**
-
-   ```bash
-   pnpm install
-   ```
-
-1. **Set up environment variables**
-
-   ```bash
-   cp .env.example .env
-   ```
-
-   Update `.env` with your database credentials.
-
-1. **Start the database and dev server**
-
-   ```bash
-   pnpm db:start   # start the PostgreSQL container
-   pnpm db:setup   # push schema and seed data
-   pnpm dev        # start the Next.js dev server
-   ```
+> **Note:** keep the checkout under a path with no accented characters.
+> Turbopack panics on non-ASCII project paths
+> ([`turbopack-core/src/ident.rs`](https://github.com/vercel/next.js) slices by
+> byte index), which breaks `next build` and some routes in `next dev`.
 
 ### Multiplayer
 

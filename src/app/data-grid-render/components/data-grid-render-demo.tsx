@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useDataGrid } from "@/hooks/use-data-grid";
+import { useDataGrid } from "@/hooks/data-grid/use-data-grid";
 import { getFilterFn } from "@/lib/data-grid-filters";
 import type { CellUpdate } from "@/types/data-grid";
 
@@ -210,13 +210,14 @@ export function DataGridRenderDemo() {
     setData(newData);
   }, []);
 
-  const { table, ...dataGridProps } = useDataGrid({
+  const table = useDataGrid({
     columns,
     data,
     onDataChange,
     getRowId: (row) => row.id,
     enableSearch: true,
     enablePaste: true,
+    height: 600,
   });
 
   const onCellsUpdate = React.useCallback(
@@ -501,7 +502,7 @@ export function DataGridRenderDemo() {
           </div>
         </div>
       </div>
-      <DataGrid {...dataGridProps} table={table} height={600} />
+      <DataGrid table={table} />
     </div>
   );
 }

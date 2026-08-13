@@ -4,30 +4,33 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Languages } from "lucide-react";
 import * as React from "react";
 import { DataGrid } from "@/components/data-grid/data-grid";
-import { DataGridFilterMenu } from "@/components/data-grid/data-grid-filter-menu";
-import { DataGridKeyboardShortcuts } from "@/components/data-grid/data-grid-keyboard-shortcuts";
-import { DataGridRowHeightMenu } from "@/components/data-grid/data-grid-row-height-menu";
 import { getDataGridSelectColumn } from "@/components/data-grid/data-grid-select-column";
-import { DataGridSortMenu } from "@/components/data-grid/data-grid-sort-menu";
-import { DataGridViewMenu } from "@/components/data-grid/data-grid-view-menu";
+import { DataGridFilterMenu } from "@/components/data-grid/menus/data-grid-filter-menu";
+import { DataGridRowHeightMenu } from "@/components/data-grid/menus/data-grid-row-height-menu";
+import { DataGridSortMenu } from "@/components/data-grid/menus/data-grid-sort-menu";
+import { DataGridKeyboardShortcuts } from "@/components/data-grid/modals/data-grid-keyboard-shortcuts";
+import { TableColumnVisibilityMenu } from "@/components/table/table-column-visibility-menu";
 import { DirectionProvider } from "@/components/ui/direction";
 import { Toggle } from "@/components/ui/toggle";
-import { type UseDataGridProps, useDataGrid } from "@/hooks/use-data-grid";
+import {
+  type UseDataGridProps,
+  useDataGrid,
+} from "@/hooks/data-grid/use-data-grid";
 import {
   type UndoRedoCellUpdate,
   useDataGridUndoRedo,
-} from "@/hooks/use-data-grid-undo-redo";
+} from "@/hooks/data-grid/use-data-grid-undo-redo";
 import { useWindowSize } from "@/hooks/use-window-size";
 import { getFilterFn } from "@/lib/data-grid-filters";
 import { generateId } from "@/lib/id";
-import type { Direction } from "@/types/data-grid";
 import {
   departments,
   initialData,
   type Person,
   skills,
   statuses,
-} from "../lib/seeds";
+} from "@/mocks/people";
+import type { Direction } from "@/types/data-grid";
 
 interface DataGridDemoImplProps extends UseDataGridProps<Person> {
   dir: Direction;
@@ -41,7 +44,7 @@ function DataGridDemoImpl({
   height,
   ...props
 }: DataGridDemoImplProps) {
-  const { table, ...dataGridProps } = useDataGrid({
+  const table = useDataGrid({
     getRowId: (row) => row.id,
     initialState: {
       columnPinning: {
@@ -49,6 +52,7 @@ function DataGridDemoImpl({
       },
     },
     dir,
+    height,
     enableSearch: true,
     enablePaste: true,
     ...props,
@@ -75,7 +79,7 @@ function DataGridDemoImpl({
         <DataGridFilterMenu table={table} align="end" />
         <DataGridSortMenu table={table} align="end" />
         <DataGridRowHeightMenu table={table} align="end" />
-        <DataGridViewMenu table={table} align="end" />
+        <TableColumnVisibilityMenu table={table} align="end" />
       </div>
       <DataGridKeyboardShortcuts
         enableSearch
@@ -84,7 +88,7 @@ function DataGridDemoImpl({
         enableRowAdd
         enableRowsDelete
       />
-      <DataGrid {...dataGridProps} table={table} height={height} />
+      <DataGrid table={table} />
     </div>
   );
 }

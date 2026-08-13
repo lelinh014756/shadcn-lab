@@ -85,7 +85,8 @@
       "!**/build",
       "!**/public",
       "!**/.turbo",
-      "!**/.next"
+      "!**/.next",
+      "!plans"
     ]
   }
 }

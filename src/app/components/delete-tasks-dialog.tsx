@@ -25,10 +25,10 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import type { Task } from "@/db/schema";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import type { Task } from "@/mocks/tasks";
 
-import { deleteTasks } from "../lib/actions";
+import { deleteTasks } from "@/mocks/tasks";
 
 interface DeleteTasksDialogProps
   extends React.ComponentPropsWithoutRef<typeof Dialog> {

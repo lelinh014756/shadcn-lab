@@ -18,9 +18,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { type Task, tasks } from "@/db/schema";
 import { exportTableToCSV } from "@/lib/export";
-import { deleteTasks, updateTasks } from "../lib/actions";
+import {
+  deleteTasks,
+  type Task,
+  taskPriorities,
+  taskStatuses,
+  updateTasks,
+} from "@/mocks/tasks";
+import { DISPLAY_COLUMN_IDS } from "@/types/table";
 
 interface TasksTableActionBarProps {
   table: Table<Task>;
@@ -62,7 +68,7 @@ export function TasksTableActionBar({ table }: TasksTableActionBarProps) {
 
   const onTaskExport = React.useCallback(() => {
     exportTableToCSV(table, {
-      excludeColumns: ["select", "actions"],
+      excludeColumns: [DISPLAY_COLUMN_IDS.select, DISPLAY_COLUMN_IDS.actions],
       onlySelected: true,
     });
   }, [table]);
@@ -102,7 +108,7 @@ export function TasksTableActionBar({ table }: TasksTableActionBarProps) {
             </ActionBarItem>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {tasks.status.enumValues.map((status) => (
+            {taskStatuses.map((status) => (
               <DropdownMenuItem
                 key={status}
                 className="capitalize"
@@ -121,7 +127,7 @@ export function TasksTableActionBar({ table }: TasksTableActionBarProps) {
             </ActionBarItem>
           </DropdownMenuTrigger>
           <DropdownMenuContent>
-            {tasks.priority.enumValues.map((priority) => (
+            {taskPriorities.map((priority) => (
               <DropdownMenuItem
                 key={priority}
                 className="capitalize"

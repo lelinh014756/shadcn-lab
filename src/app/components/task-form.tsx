@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { tasks } from "@/db/schema";
+import { taskLabels, taskPriorities, taskStatuses } from "@/mocks/tasks";
 
 interface TaskFormProps<T extends FieldValues>
   extends Omit<React.ComponentPropsWithRef<"form">, "onSubmit"> {
@@ -71,7 +71,7 @@ export function TaskForm<T extends FieldValues>({
                 </FormControl>
                 <SelectContent>
                   <SelectGroup>
-                    {tasks.label.enumValues.map((item) => (
+                    {taskLabels.map((item) => (
                       <SelectItem
                         key={item}
                         value={item}
@@ -101,7 +101,7 @@ export function TaskForm<T extends FieldValues>({
                 </FormControl>
                 <SelectContent>
                   <SelectGroup>
-                    {tasks.status.enumValues.map((item) => (
+                    {taskStatuses.map((item) => (
                       <SelectItem
                         key={item}
                         value={item}
@@ -131,7 +131,7 @@ export function TaskForm<T extends FieldValues>({
                 </FormControl>
                 <SelectContent>
                   <SelectGroup>
-                    {tasks.priority.enumValues.map((item) => (
+                    {taskPriorities.map((item) => (
                       <SelectItem
                         key={item}
                         value={item}

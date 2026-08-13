@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { skaters } from "@/db/schema";
+import { skaterStances, skaterStatuses, skaterStyles } from "@/mocks/skaters";
 
 const mediaSchema = z.object({
   id: z.string(),
@@ -14,9 +14,9 @@ export const skaterSchema = z.object({
   order: z.number(),
   name: z.string().nullable(),
   email: z.string().nullable(),
-  stance: z.enum(skaters.stance.enumValues).nullable(),
-  style: z.enum(skaters.style.enumValues).nullable(),
-  status: z.enum(skaters.status.enumValues).nullable(),
+  stance: z.enum(skaterStances).nullable(),
+  style: z.enum(skaterStyles).nullable(),
+  status: z.enum(skaterStatuses).nullable(),
   yearsSkating: z.number().nullable(),
   startedSkating: z.coerce.date().nullable(),
   isPro: z.boolean(),
@@ -31,9 +31,9 @@ export const insertSkaterSchema = z.object({
   order: z.number().optional(),
   name: z.string().nullable().optional(),
   email: z.string().nullable().optional(),
-  stance: z.enum(skaters.stance.enumValues).nullable().optional(),
-  style: z.enum(skaters.style.enumValues).nullable().optional(),
-  status: z.enum(skaters.status.enumValues).nullable().optional(),
+  stance: z.enum(skaterStances).nullable().optional(),
+  style: z.enum(skaterStyles).nullable().optional(),
+  status: z.enum(skaterStatuses).nullable().optional(),
   yearsSkating: z.number().nullable().optional(),
   startedSkating: z.coerce.date().nullable().optional(),
   isPro: z.boolean().optional(),
@@ -49,9 +49,9 @@ export const updateSkaterSchema = z.object({
   name: z.string().nullable().optional(),
   order: z.number().optional(),
   email: z.string().nullable().optional(),
-  stance: z.enum(skaters.stance.enumValues).nullable().optional(),
-  style: z.enum(skaters.style.enumValues).nullable().optional(),
-  status: z.enum(skaters.status.enumValues).nullable().optional(),
+  stance: z.enum(skaterStances).nullable().optional(),
+  style: z.enum(skaterStyles).nullable().optional(),
+  status: z.enum(skaterStatuses).nullable().optional(),
   yearsSkating: z.number().nullable().optional(),
   startedSkating: z.coerce.date().nullable().optional(),
   isPro: z.boolean().optional(),
