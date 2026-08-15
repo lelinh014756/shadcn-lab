@@ -126,6 +126,10 @@
         },
         {
           "type": "registry:component",
+          "path": "src/lib/table/column-size-vars.ts"
+        },
+        {
+          "type": "registry:component",
           "path": "src/lib/table/style-utils.ts"
         },
         {
@@ -139,6 +143,14 @@
         {
           "type": "registry:component",
           "path": "src/lib/table/localization/index.ts"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/hooks/table/use-column-size-vars.ts"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/hooks/table/use-column-resize.ts"
         },
         {
           "type": "registry:component",
@@ -604,6 +616,10 @@
         },
         {
           "type": "registry:component",
+          "path": "src/lib/table/column-size-vars.ts"
+        },
+        {
+          "type": "registry:component",
           "path": "src/lib/table/style-utils.ts"
         },
         {
@@ -617,6 +633,14 @@
         {
           "type": "registry:component",
           "path": "src/lib/table/localization/index.ts"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/hooks/table/use-column-size-vars.ts"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/hooks/table/use-column-resize.ts"
         },
         {
           "type": "registry:component",
