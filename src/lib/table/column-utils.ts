@@ -3,14 +3,17 @@
  *
  * `getColumnPinningStyle` previously existed twice — once in `lib/data-table.ts`
  * (semantic table, boxShadow separators) and once in `lib/data-grid.ts` (CSS
- * grid, RTL-aware). This is the merged implementation; `layoutMode` and `dir`
- * select the behavior.
+ * grid, RTL-aware). This is the merged implementation; `dir` selects the
+ * left/right offset behavior for RTL.
+ *
+ * Cố ý KHÔNG trả số px nào ở đây — cả độ rộng lẫn offset ghim đều đi qua CSS
+ * variable (`computeColumnSizeVars` + `calc(var(...) * 1px)` ở nơi gọi) để
+ * resize mượt, không phụ thuộc React re-render.
  */
 
 import type { Column } from "@tanstack/react-table";
 
 import type { Direction } from "@/types/data-grid";
-import type { LayoutMode } from "@/types/table";
 
 /** Approximate width of one header character, used to derive a minimum size. */
 const HEADER_CHAR_WIDTH_PX = 8.5;
@@ -20,13 +23,11 @@ const HEADER_PADDING_PX = 24;
 export function getColumnPinningStyle<TData>({
   column,
   dir = "ltr",
-  layoutMode = "semantic",
   withBorder = false,
   background = "var(--background)",
 }: {
   column: Column<TData>;
   dir?: Direction;
-  layoutMode?: LayoutMode;
   withBorder?: boolean;
   /**
    * Nền cho ô đang ghim (phải đặc, không alpha) — mặc định khớp nền trang.
@@ -38,13 +39,14 @@ export function getColumnPinningStyle<TData>({
   const isPinned = column.getIsPinned();
 
   if (!isPinned) {
-    return layoutMode === "grid"
-      ? { position: "relative" }
-      : { position: "relative", width: column.getSize() };
+    return { position: "relative" };
   }
 
-  const startOffset = `${column.getStart("left")}px`;
-  const endOffset = `${column.getAfter("right")}px`;
+  // Offset ghim cũng đi qua biến CSS chứ không phải số px tính lúc render:
+  // `column.getStart("left")` chỉ đúng sau khi React render lại, nên kéo một
+  // cột ghim sẽ không thể mượt nếu neo vào nó. Xem `computeColumnSizeVars`.
+  const startOffset = `calc(var(--col-${column.id}-start, 0) * 1px)`;
+  const endOffset = `calc(var(--col-${column.id}-end, 0) * 1px)`;
   const isRtl = dir === "rtl";
 
   return {
@@ -80,7 +82,6 @@ export function getColumnPinningStyle<TData>({
         ? "inset -1px 0 0 0 var(--border)"
         : "inset 1px 0 0 0 var(--border)"
       : undefined,
-    ...(layoutMode === "semantic" ? { width: column.getSize() } : null),
   };
 }
 

@@ -1,7 +1,12 @@
 "use client";
 
 /**
- * Tay kéo resize cột, port từ data-grid.
+ * Tay kéo resize cột.
+ *
+ * Cử chỉ kéo do `useColumnResize` lo trọn gói (xem chú thích ở đó): trong lúc
+ * kéo không có lượt render React nào, độ rộng chảy qua biến CSS ghi thẳng vào
+ * DOM. Handler mặc định `header.getResizeHandler()` không dùng nữa — nó commit
+ * state ở mọi sự kiện chuột và không đảo chiều được theo từng cột.
  *
  * Memo theo trạng thái resize và kích thước hiện tại: kéo một cột thì chỉ cột
  * đó re-render, các cột còn lại đứng yên.
@@ -10,79 +15,13 @@
 import type { Header, RowData, Table } from "@tanstack/react-table";
 import * as React from "react";
 
+import { useColumnResize } from "@/hooks/table/use-column-resize";
 import { cn } from "@/lib/utils";
 
 interface DataTableColumnResizerProps<TData extends RowData> {
   header: Header<TData, unknown>;
   table: Table<TData>;
   label: string;
-}
-
-function getClientX(event: MouseEvent | TouchEvent): number {
-  return "touches" in event ? (event.touches[0]?.clientX ?? 0) : event.clientX;
-}
-
-/**
- * Cột ghim phải neo vào mép phải bảng — cạnh phải của nó không di chuyển
- * được, nên phải resize bằng cách kéo cạnh TRÁI, và kéo trái (đi vào giữa
- * bảng) mới là "phình to" — ngược chiều so với cột thường/ghim trái.
- *
- * `header.getResizeHandler()` của TanStack chỉ đảo chiều ở cấp toàn bảng
- * (`columnResizeDirection`), không theo từng cột, nên phải tự viết handler
- * riêng cho đúng một cột này thay vì dùng handler mặc định.
- */
-function useInvertedResizeHandler<TData extends RowData>(
-  header: Header<TData, unknown>,
-  table: Table<TData>,
-) {
-  return React.useCallback(
-    (startEvent: React.MouseEvent | React.TouchEvent) => {
-      const column = header.column;
-      if (!column.getCanResize()) return;
-
-      const defaultColumnDef = table._getDefaultColumnDef();
-      const startSize = header.getSize();
-      const startX = getClientX(
-        startEvent.nativeEvent as MouseEvent | TouchEvent,
-      );
-      const minSize = column.columnDef.minSize ?? defaultColumnDef.minSize ?? 0;
-      const maxSize =
-        column.columnDef.maxSize ??
-        defaultColumnDef.maxSize ??
-        Number.MAX_SAFE_INTEGER;
-
-      table.setColumnSizingInfo((old) => ({
-        ...old,
-        isResizingColumn: column.id,
-      }));
-
-      function onMove(event: MouseEvent | TouchEvent) {
-        const delta = startX - getClientX(event);
-        const nextSize = Math.min(
-          maxSize,
-          Math.max(minSize, startSize + delta),
-        );
-        table.setColumnSizing((old) => ({ ...old, [column.id]: nextSize }));
-      }
-
-      function onEnd() {
-        table.setColumnSizingInfo((old) => ({
-          ...old,
-          isResizingColumn: false,
-        }));
-        document.removeEventListener("mousemove", onMove);
-        document.removeEventListener("mouseup", onEnd);
-        document.removeEventListener("touchmove", onMove);
-        document.removeEventListener("touchend", onEnd);
-      }
-
-      document.addEventListener("mousemove", onMove);
-      document.addEventListener("mouseup", onEnd);
-      document.addEventListener("touchmove", onMove, { passive: true });
-      document.addEventListener("touchend", onEnd);
-    },
-    [header, table],
-  );
 }
 
 function DataTableColumnResizerImpl<TData extends RowData>({
@@ -93,11 +32,11 @@ function DataTableColumnResizerImpl<TData extends RowData>({
   const defaultColumnDef = table._getDefaultColumnDef();
   const isPinnedRight = header.column.getIsPinned() === "right";
 
-  const invertedResizeHandler = useInvertedResizeHandler(header, table);
-  const nativeResizeHandler = header.getResizeHandler();
-  const onResizeStart = isPinnedRight
-    ? invertedResizeHandler
-    : nativeResizeHandler;
+  const startResize = useColumnResize(table);
+  const onResizeStart = React.useCallback(
+    (event: React.MouseEvent | React.TouchEvent) => startResize(header, event),
+    [startResize, header],
+  );
 
   const onDoubleClick = React.useCallback(() => {
     header.column.resetSize();

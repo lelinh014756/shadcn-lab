@@ -7,6 +7,7 @@ import { DataTableFooter } from "@/components/data-table/footer/data-table-foote
 import { DataTableHead } from "@/components/data-table/head/data-table-head";
 import { TableProgressBar } from "@/components/table/table-progress-bar";
 import { Table } from "@/components/ui/table";
+import { useColumnSizeVars } from "@/hooks/table/use-column-size-vars";
 import type { TableCoreInstance } from "@/hooks/table/use-table-core";
 import { cn } from "@/lib/utils";
 import { resolveSlotProp } from "@/types/table";
@@ -36,10 +37,16 @@ export function DataTableContainer<TData extends RowData>({
     (pinning.left?.length ?? 0) > 1 ||
     (pinning.right?.length ?? 0) > 1;
 
+  // Gán MỘT LẦN lên container — mỗi cell tham chiếu qua calc(var(...)) nên
+  // trình duyệt tự cascade width khi resize, không cần React patch từng cell.
+  // Xem chú thích trong useColumnSizeVars để biết lý do.
+  const columnSizeVars = useColumnSizeVars(table);
+
   return (
     <div
       data-slot="data-table-container"
       {...containerProps}
+      style={{ ...columnSizeVars, ...containerProps?.style }}
       className={cn(
         // `min-h-0 flex-1` makes this the scroll region inside the paper's flex
         // column; without it the container grows to content height and the page
@@ -52,7 +59,10 @@ export function DataTableContainer<TData extends RowData>({
       <Table
         style={
           hasExplicitSizing
-            ? { tableLayout: "fixed", width: table.getTotalSize() }
+            ? {
+                tableLayout: "fixed",
+                width: "calc(var(--table-total-size) * 1px)",
+              }
             : undefined
         }
       >

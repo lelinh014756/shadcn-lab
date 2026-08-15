@@ -80,13 +80,15 @@ export function DataTableHead<TData extends RowData>({
                 style={{
                   ...getColumnPinningStyle({
                     column: header.column,
-                    layoutMode: table.options.layoutMode,
                     withBorder: true,
                     // Khớp nền của <thead> (bg-muted) — nếu để mặc định
                     // var(--background) thì ô ghim sẽ trắng lạc giữa header
                     // xám nhẹ.
                     background: "var(--muted)",
                   }),
+                  // Qua CSS var — xem useColumnSizeVars. Dùng --header- (không
+                  // phải --col-) vì header có thể colSpan nhiều cột.
+                  width: `calc(var(--header-${header.id}-size) * 1px)`,
                   ...cellProps?.style,
                 }}
                 className={cn(

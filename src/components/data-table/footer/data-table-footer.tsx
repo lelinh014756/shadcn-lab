@@ -58,9 +58,11 @@ export function DataTableFooter<TData extends RowData>({
                 style={{
                   ...getColumnPinningStyle({
                     column: header.column,
-                    layoutMode: table.options.layoutMode,
                     withBorder: true,
                   }),
+                  // header.id ở footer trùng với header.id tương ứng ở phần
+                  // head (cùng cột) — dùng chung biến --header- đã tính sẵn.
+                  width: `calc(var(--header-${header.id}-size) * 1px)`,
                   ...cellProps?.style,
                 }}
                 className={cn(
