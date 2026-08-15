@@ -67,7 +67,11 @@ export function DataTableFooter<TData extends RowData>({
                   getDensityCellClass(density),
                   "font-semibold",
                   align && getAlignClass(align),
-                  enableColumnBorders && index < headers.length - 1 && "border-e",
+                  // Cột ghim tự vẽ viền bằng box-shadow, xem data-table-body.
+                  enableColumnBorders &&
+                    index < headers.length - 1 &&
+                    !header.column.getIsPinned() &&
+                    "border-e",
                   cellProps?.className,
                 )}
               >

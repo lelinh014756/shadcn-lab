@@ -51,7 +51,9 @@ export function DataTableHead<TData extends RowData>({
     <TableHeader
       {...headProps}
       className={cn(
-        enableStickyHeader && "sticky top-0 z-10 bg-background",
+        // Nền/viền mặc định của <thead> (bg-muted, border-b) đã đủ để phân
+        // biệt head/body — ở đây chỉ còn lo phần định vị khi cuộn.
+        enableStickyHeader && "sticky top-0 z-10",
         headProps?.className,
       )}
     >
@@ -80,13 +82,23 @@ export function DataTableHead<TData extends RowData>({
                     column: header.column,
                     layoutMode: table.options.layoutMode,
                     withBorder: true,
+                    // Khớp nền của <thead> (bg-muted) — nếu để mặc định
+                    // var(--background) thì ô ghim sẽ trắng lạc giữa header
+                    // xám nhẹ.
+                    background: "var(--muted)",
                   }),
                   ...cellProps?.style,
                 }}
                 className={cn(
                   getDensityHeadClass(density),
                   align && getAlignClass(align),
-                  enableColumnBorders && !isLast && "border-e",
+                  // Cột ghim tự vẽ viền bằng box-shadow trong
+                  // getColumnPinningStyle — border-e ở đây chỉ dành cho cột
+                  // thường (nếu để cả hai, cột ghim kế tiếp sẽ đè mất border-e).
+                  enableColumnBorders &&
+                    !isLast &&
+                    !header.column.getIsPinned() &&
+                    "border-e",
                   cellProps?.className,
                 )}
               >

@@ -23,7 +23,13 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("[&_tr]:border-b", className)}
+      // Viền + nền đặt trực tiếp trên <thead> (không phải <tr> con) — border
+      // trên thead luôn hiển thị nhất quán, và khi header sticky khi cuộn,
+      // nó là phần tử thật sự đứng trên cùng nên viền không bị dòng dữ liệu
+      // đầu tiên che mất. Nền `bg-muted` (đặc, không alpha) để phân biệt vùng
+      // head với body — dùng màu đặc thay vì `/40` để khớp chính xác với nền
+      // của các cột ghim (được set inline, xem `getColumnPinningStyle`).
+      className={cn("border-b bg-muted [&_tr]:border-b-0", className)}
       {...props}
     />
   );

@@ -22,11 +22,18 @@ export function getColumnPinningStyle<TData>({
   dir = "ltr",
   layoutMode = "semantic",
   withBorder = false,
+  background = "var(--background)",
 }: {
   column: Column<TData>;
   dir?: Direction;
   layoutMode?: LayoutMode;
   withBorder?: boolean;
+  /**
+   * Nền cho ô đang ghim (phải đặc, không alpha) — mặc định khớp nền trang.
+   * Header truyền `var(--muted)` để khớp với nền `bg-muted` của `<thead>`,
+   * tránh mảng ghim nổi màu khác với phần header còn lại.
+   */
+  background?: string;
 }): React.CSSProperties {
   const isPinned = column.getIsPinned();
 
@@ -35,11 +42,6 @@ export function getColumnPinningStyle<TData>({
       ? { position: "relative" }
       : { position: "relative", width: column.getSize() };
   }
-
-  const isLastLeftPinned =
-    isPinned === "left" && column.getIsLastColumn("left");
-  const isFirstRightPinned =
-    isPinned === "right" && column.getIsFirstColumn("right");
 
   const startOffset = `${column.getStart("left")}px`;
   const endOffset = `${column.getAfter("right")}px`;
@@ -65,13 +67,18 @@ export function getColumnPinningStyle<TData>({
           ? startOffset
           : undefined,
     zIndex: isPinned === "left" ? 2 : 3,
-    background: "var(--background)",
+    background,
+    // Viền phân cách của MỌI cột đang ghim (không chỉ cột ở rìa vùng ghim):
+    // trái ghim vẽ ở cạnh phải, phải ghim vẽ ở cạnh trái. Bắt buộc dùng inset
+    // box-shadow thay vì class `border-e` — các cột ghim cùng z-index (2/3),
+    // cột đứng sau trong DOM vẽ đè lên cột đứng trước tại đúng pixel giáp
+    // ranh, nên border-e (vẽ ở mép ngoài box) dễ bị cột kế tiếp che mất.
+    // box-shadow inset vẽ lùi vào bên trong 1px, nằm trong vùng sơn riêng
+    // của chính cột đó nên không bị cột khác đè.
     boxShadow: withBorder
-      ? isLastLeftPinned
-        ? "-4px 0 4px -4px var(--border) inset"
-        : isFirstRightPinned
-          ? "4px 0 4px -4px var(--border) inset"
-          : undefined
+      ? isPinned === "left"
+        ? "inset -1px 0 0 0 var(--border)"
+        : "inset 1px 0 0 0 var(--border)"
       : undefined,
     ...(layoutMode === "semantic" ? { width: column.getSize() } : null),
   };

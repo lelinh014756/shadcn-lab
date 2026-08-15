@@ -80,8 +80,12 @@ export function DataTableBody<TData extends RowData>({
                     className={cn(
                       getDensityCellClass(density),
                       align && getAlignClass(align),
+                      // Cột ghim tự vẽ viền bằng box-shadow trong
+                      // getColumnPinningStyle (xem comment ở đó) — border-e
+                      // ở đây chỉ dành cho cột thường.
                       enableColumnBorders &&
                         index < cells.length - 1 &&
+                        !cell.column.getIsPinned() &&
                         "border-e",
                       cellProps?.className,
                     )}

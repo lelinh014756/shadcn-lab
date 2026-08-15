@@ -36,6 +36,10 @@ function TableSelectHitbox({
 }: TableSelectHitboxProps) {
   return (
     <div
+      // Chặn nổi bọt: nếu không, click vào checkbox cũng kích hoạt luôn
+      // `onRowClick` gắn ở cấp <tr> (bảng master-detail) — người dùng phải
+      // click 2 lần vì lần đầu bị "ăn" bởi thay đổi state của việc chọn dòng.
+      onClick={(event) => event.stopPropagation()}
       className={cn(
         "group relative -my-1.5 h-[calc(100%+0.75rem)] py-1.5",
         size === "default" && "-ms-3 -me-2 ps-3 pe-2",
@@ -115,16 +119,22 @@ function TableSelectCheckbox({
 
 interface TableSelectHeaderProps<TData>
   extends Pick<HeaderContext<TData, unknown>, "table"> {
-  hitboxSize?: HitboxSize;
   readOnly?: boolean;
-  debug?: boolean;
 }
 
+/**
+ * Checkbox "chọn tất cả" ở header.
+ *
+ * Không dùng `TableSelectHitbox` ở đây: trick đó tính `-my-1.5
+ * h-[calc(100%+0.75rem)]` dựa trên cell flex của data-grid, còn `<th>` của
+ * data-table là table-cell với chiều cao cố định theo density (vd `h-8`,
+ * không `py-*`) — % height tính sai khiến checkbox tràn ra ngoài ô header,
+ * đè lên dòng dữ liệu đầu tiên. Header luôn chỉ là 1 checkbox tĩnh (không có
+ * hiệu ứng hover-thành-số như ô dữ liệu), nên chỉ cần căn giữa bằng flex.
+ */
 function TableSelectHeader<TData>({
   table,
-  hitboxSize,
   readOnly,
-  debug,
 }: TableSelectHeaderProps<TData>) {
   const onCheckedChange = React.useCallback(
     (value: boolean) => table.toggleAllPageRowsSelected(value),
@@ -133,23 +143,23 @@ function TableSelectHeader<TData>({
 
   if (readOnly) {
     return (
-      <div className="mt-1 flex items-center ps-1 text-muted-foreground text-sm">
+      <span className="flex items-center justify-center text-muted-foreground text-xs">
         #
-      </div>
+      </span>
     );
   }
 
   return (
-    <TableSelectCheckbox
-      aria-label="Select all"
-      checked={
-        table.getIsAllPageRowsSelected() ||
-        (table.getIsSomePageRowsSelected() && "indeterminate")
-      }
-      onCheckedChange={onCheckedChange}
-      hitboxSize={hitboxSize}
-      debug={debug}
-    />
+    <span className="flex items-center justify-center">
+      <Checkbox
+        aria-label="Select all"
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={onCheckedChange}
+      />
+    </span>
   );
 }
 
@@ -256,14 +266,7 @@ export function getTableSelectColumn<TData>({
 }: GetTableSelectColumnOptions<TData> = {}): ColumnDef<TData> {
   return {
     id,
-    header: ({ table }) => (
-      <TableSelectHeader
-        table={table}
-        hitboxSize={hitboxSize}
-        readOnly={readOnly}
-        debug={debug}
-      />
-    ),
+    header: ({ table }) => <TableSelectHeader table={table} readOnly={readOnly} />,
     cell: ({ row, table }) => (
       <TableSelectCell
         row={row}
