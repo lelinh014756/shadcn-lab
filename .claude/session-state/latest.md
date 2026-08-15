@@ -1,5 +1,5 @@
 # Session State
-<!-- Generated: 2026-08-15T10:00:28.637Z -->
+<!-- Generated: 2026-08-15T14:57:08.643Z -->
 <!-- Branch: unknown -->
 <!-- Plan: none -->
 
@@ -2024,15 +2024,36 @@
 ## Agent Result: unknown (10:04:23)
 - Completed at 10:04:23
 
+
+## Agent Result: unknown (11:03:42)
+- Completed at 11:03:42
+
+
+## Agent Result: unknown (14:37:33)
+- Completed at 14:37:33
+
+
+## Agent Result: unknown (14:40:30)
+- Completed at 14:40:30
+
+
+## Agent Result: unknown (14:57:11)
+- Completed at 14:57:11
+
 ## Key Files Modified
 - .claude/hooks/.logs/hook-log.jsonl
-- .claude/session-state/archive/20260812-1542.md
-- .claude/session-state/archive/20260812-1544.md
+- .claude/session-state/archive/20260813-0900.md
+- .claude/session-state/archive/20260813-2258.md
 - .claude/session-state/latest.md
+- public/r/data-grid-select-column.json
+- public/r/data-grid.json
+- public/r/data-table.json
+- public/r/registry.json
+- registry.json
 - src/components/data-table/body/data-table-body.tsx
 - src/components/data-table/footer/data-table-footer.tsx
 - src/components/data-table/head/data-table-column-resizer.tsx
 - src/components/data-table/head/data-table-head.tsx
-- src/components/table/table-select-column.tsx
-- src/components/ui/table.tsx
+- src/components/data-table/table/data-table-container.tsx
+- src/hooks/table/index.ts
 - src/lib/table/column-utils.ts
