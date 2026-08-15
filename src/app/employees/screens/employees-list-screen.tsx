@@ -267,10 +267,7 @@ export function EmployeesListScreen() {
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col p-4">
-      <MasterDetailLayout
-        masterPanel={
-          <div className="h-full min-h-0 flex-1">
-            {settings.isHydrated ? (
+      {settings.isHydrated ? (
               <DataTable
                 table={table}
                 ref={containerRef}
@@ -280,16 +277,6 @@ export function EmployeesListScreen() {
             ) : (
               <Skeleton className="h-full w-full" />
             )}
-          </div>
-        }
-        detailPanel={(controls) => (
-          <EmployeesDetailPanel
-            employee={activeEmployee}
-            isCollapsed={controls.isCollapsed}
-            onToggle={controls.onToggle}
-          />
-        )}
-      />
     </div>
   );
 }
