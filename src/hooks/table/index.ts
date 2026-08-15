@@ -1,4 +1,9 @@
 export {
+  type ColumnResizeStarter,
+  useColumnResize,
+} from "./use-column-resize";
+export { useColumnSizeVars } from "./use-column-size-vars";
+export {
   type DefinedTableCoreOptions,
   type TableCoreInstance,
   useTableCore,
