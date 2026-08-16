@@ -61,7 +61,10 @@ import { formatDate } from "@/lib/format";
 import { generateId } from "@/lib/id";
 import { cn } from "@/lib/utils";
 import { dataTableConfig } from "../config";
-import { getDefaultFilterOperator, getFilterOperators } from "../lib/data-table";
+import {
+  getDefaultFilterOperator,
+  getFilterOperators,
+} from "../lib/data-table";
 import { getFiltersStateParser } from "../lib/parsers";
 import type {
   ExtendedColumnFilter,

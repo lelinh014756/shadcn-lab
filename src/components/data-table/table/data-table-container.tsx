@@ -1,16 +1,18 @@
 "use client";
 
 import type { RowData } from "@tanstack/react-table";
+import * as React from "react";
 
 import { DataTableBody } from "@/components/data-table/body/data-table-body";
 import { DataTableFooter } from "@/components/data-table/footer/data-table-footer";
 import { DataTableHead } from "@/components/data-table/head/data-table-head";
 import { TableProgressBar } from "@/components/table/table-progress-bar";
 import { Table } from "@/components/ui/table";
-import { useColumnSizeVars } from "../hooks/use-column-size-vars";
 import type { TableCoreInstance } from "@/hooks/table/use-table-core";
 import { cn } from "@/lib/utils";
 import { resolveSlotProp } from "@/types/table";
+import { useColumnSizeVars } from "../hooks/use-column-size-vars";
+import { useInfiniteScroll } from "../hooks/use-infinite-scroll";
 
 interface DataTableContainerProps<TData extends RowData> {
   table: TableCoreInstance<TData>;
@@ -42,9 +44,20 @@ export function DataTableContainer<TData extends RowData>({
   // Xem chú thích trong useColumnSizeVars để biết lý do.
   const columnSizeVars = useColumnSizeVars(table);
 
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  useInfiniteScroll({
+    containerRef,
+    enabled: table.options.enableInfiniteScroll,
+    hasNextPage: table.options.hasNextPage,
+    isFetchingNextPage: table.options.isFetchingNextPage,
+    onFetchMore: table.options.onFetchMore,
+    threshold: table.options.infiniteScrollThreshold,
+  });
+
   return (
     <div
       data-slot="data-table-container"
+      ref={containerRef}
       {...containerProps}
       style={{ ...columnSizeVars, ...containerProps?.style }}
       className={cn(

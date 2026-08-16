@@ -66,9 +66,15 @@ function DataTableSkeletonRow<TData extends RowData>({
 export function DataTableBody<TData extends RowData>({
   table,
 }: DataTableBodyProps<TData>) {
-  const { density, columnVisibility, columnPinning, columnOrder, showSkeletons } =
-    table.getState();
   const {
+    density,
+    columnVisibility,
+    columnPinning,
+    columnOrder,
+    showSkeletons,
+  } = table.getState();
+  const {
+    activeRowId,
     enableColumnBorders,
     localization,
     renderEmptyRowsFallback,
@@ -133,6 +139,7 @@ export function DataTableBody<TData extends RowData>({
           // chú thích đầu data-table-row.tsx.
           isSelected={row.getIsSelected()}
           isExpanded={row.getIsExpanded()}
+          isActive={activeRowId != null && row.id === activeRowId}
         />
       ))}
     </TableBody>

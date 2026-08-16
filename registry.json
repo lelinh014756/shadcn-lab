@@ -154,6 +154,10 @@
         },
         {
           "type": "registry:component",
+          "path": "src/components/data-table/hooks/use-infinite-scroll.ts"
+        },
+        {
+          "type": "registry:component",
           "path": "src/hooks/table/use-table-core.ts"
         },
         {
@@ -665,6 +669,10 @@
         {
           "type": "registry:component",
           "path": "src/components/data-table/hooks/use-column-resize.ts"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/data-table/hooks/use-infinite-scroll.ts"
         },
         {
           "type": "registry:component",

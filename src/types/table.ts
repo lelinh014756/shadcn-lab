@@ -260,6 +260,45 @@ export interface TableCoreOptions<TData extends RowData>
     table: TanstackTable<TData>;
   }) => React.ReactNode;
 
+  // Dòng đang mở ở panel chi tiết (master-detail)
+  /**
+   * Id (theo `getRowId`) của dòng đang xem chi tiết. Core lo phần tô đậm:
+   * nền dòng, nền các ô ĐANG GHIM (ô ghim buộc nền đặc nên không ăn được nền
+   * alpha của `<tr>`) và gạch dọc primary ở ô đầu tiên. Tự làm lại ở từng màn
+   * hình rất dễ sai ba chỗ đó, nên gom vào đây.
+   */
+  activeRowId?: string | null;
+  /** Click vào một dòng bất kỳ (trừ vùng checkbox chọn dòng). */
+  onRowClick?: (context: {
+    row: Row<TData>;
+    table: TanstackTable<TData>;
+  }) => void;
+
+  // Trạng thái tải
+  /**
+   * Đang tải dữ liệu. Core tự suy ra hai state hiển thị từ đây:
+   *   `showProgressBars` — luôn bật khi đang tải
+   *   `showSkeletons`    — chỉ khi CHƯA có dòng nào để hiển thị
+   *
+   * Tách như vậy vì `isLoading` bật lại ở MỌI lần tải (đổi trang, gõ tìm
+   * kiếm...) trong khi `data` vẫn giữ trang cũ tới lúc trang mới về — nếu
+   * skeleton ăn thẳng theo `isLoading` thì bảng nhấp nháy xoá sạch dòng đang
+   * có mỗi lần chuyển trang. Truyền thẳng `state.showSkeletons` để ghi đè.
+   */
+  isLoading?: boolean;
+
+  // Cuộn vô hạn
+  /**
+   * Bật cuộn vô hạn: container tự lắng nghe scroll và gọi `onFetchMore` khi
+   * gần chạm đáy. Core cũng tự tắt pagination + bottom toolbar theo.
+   */
+  enableInfiniteScroll?: boolean;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  onFetchMore?: () => void;
+  /** Còn cách đáy bao nhiêu px thì nạp tiếp. Mặc định 400. */
+  infiniteScrollThreshold?: number;
+
   /** Prefixes generated DOM ids so two tables on one page stay a11y-correct. */
   idPrefix?: string;
 

@@ -12,6 +12,7 @@ import {
 import * as React from "react";
 import { toast } from "sonner";
 import { DataTableColumnHeader } from "@/components/data-table/head/data-table-column-header";
+import type { DataTableRowAction } from "@/components/data-table/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -38,7 +39,6 @@ import {
   taskStatuses,
   updateTask,
 } from "@/mocks/tasks";
-import type { DataTableRowAction } from "@/components/data-table/types";
 
 interface GetTasksTableColumnsProps {
   statusCounts: Record<Task["status"], number>;

@@ -86,12 +86,19 @@ export function DataTableHeadMenu<TData extends RowData>({
   const canHide = column.getCanHide();
 
   if (!canSort && !canPin && !canHide) {
-    return <span className="truncate">{label}</span>;
+    return (
+      <span data-slot="table-head-label" className="truncate">
+        {label}
+      </span>
+    );
   }
 
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger
+        // `data-slot` ở đây và ở label bên dưới là mốc để `useColumnResize` đo
+        // bề rộng tối thiểu của header lúc bắt đầu kéo — đừng đổi tên rời rạc.
+        data-slot="table-head-menu-trigger"
         className={cn(
           // `absolute inset-0` phủ trọn <th> (vốn đã `position: relative` hoặc
           // `sticky` từ getColumnPinningStyle, đủ làm containing block) — xem
@@ -103,7 +110,9 @@ export function DataTableHeadMenu<TData extends RowData>({
           isResizing && "pointer-events-none",
         )}
       >
-        <span className="truncate">{label}</span>
+        <span data-slot="table-head-label" className="truncate">
+          {label}
+        </span>
         <ChevronDownIcon className="shrink-0 text-muted-foreground" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" sideOffset={0} className="w-52">

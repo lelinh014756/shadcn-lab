@@ -57,8 +57,6 @@ import {
   reconcileEmployeesTableSettings,
 } from "../lib/employees-table-settings";
 
-const INFINITE_SCROLL_THRESHOLD_PX = 400;
-
 export function EmployeesListScreen() {
   const [search, setSearch] = useQueryStates({
     q: parseAsString.withDefault(""),
@@ -105,31 +103,6 @@ export function EmployeesListScreen() {
     () => list.items.find((item) => item.id === search.selected) ?? null,
     [list.items, search.selected],
   );
-
-  // ── Infinite scroll ────────────────────────────────────────────────────────
-  const containerRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    if (!enableInfinite) return;
-    const element = containerRef.current?.querySelector(
-      '[data-slot="table-container"]',
-    );
-    if (!element) return;
-
-    function onScroll() {
-      const el = element as HTMLElement;
-      if (list.isFetchingNextPage || !list.hasNextPage) return;
-      if (
-        el.scrollHeight - el.scrollTop - el.clientHeight <
-        INFINITE_SCROLL_THRESHOLD_PX
-      ) {
-        list.fetchNextPage();
-      }
-    }
-
-    element.addEventListener("scroll", onScroll);
-    return () => element.removeEventListener("scroll", onScroll);
-  }, [enableInfinite, list]);
 
   // ── Filters ────────────────────────────────────────────────────────────────
   const activeFilterCount = React.useMemo(
@@ -212,6 +185,9 @@ export function EmployeesListScreen() {
     selectedRowId: search.selected != null ? String(search.selected) : null,
     isLoading: list.isLoading || list.isFetchingNextPage,
     mode: enableInfinite ? "infinite" : "paginated",
+    hasNextPage: list.hasNextPage,
+    isFetchingNextPage: list.isFetchingNextPage,
+    onFetchMore: list.fetchNextPage,
     pageSize: search.perPage,
     renderTopToolbar: () => renderTopToolbarRef.current(),
     onColumnPinningChange,
@@ -305,7 +281,6 @@ export function EmployeesListScreen() {
             {settings.isHydrated ? (
               <DataTable
                 table={table}
-                ref={containerRef}
                 className="h-full"
                 actionBar={<EmployeesActionBar table={table} />}
               />

@@ -68,6 +68,8 @@ export interface DefinedTableCoreOptions<TData extends RowData>
   enableRowActions: boolean;
   positionActionsColumn: "first" | "last";
   positionExpandColumn: "first" | "last";
+  enableInfiniteScroll: boolean;
+  infiniteScrollThreshold: number;
   idPrefix: string;
 }
 
@@ -90,6 +92,7 @@ export type TableCoreInstance<TData extends RowData> = Omit<
 };
 
 const DEFAULT_PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50];
+const DEFAULT_INFINITE_SCROLL_THRESHOLD_PX = 400;
 
 let idCounter = 0;
 
@@ -121,6 +124,14 @@ export function useTableCore<TData extends RowData>(
     enableRowActions = false,
     positionActionsColumn = "last",
     positionExpandColumn = "first",
+    enableInfiniteScroll = false,
+    infiniteScrollThreshold = DEFAULT_INFINITE_SCROLL_THRESHOLD_PX,
+    hasNextPage,
+    isFetchingNextPage,
+    onFetchMore,
+    activeRowId,
+    onRowClick,
+    isLoading,
     renderRowActions,
     renderDetailPanel,
     renderTopToolbar,
@@ -145,9 +156,23 @@ export function useTableCore<TData extends RowData>(
 
   const extraStateInput = React.useMemo(() => pickExtraState(state), [state]);
 
+  // `isLoading` là một cờ duy nhất caller truyền vào; hai state hiển thị suy ra
+  // từ nó ở đây thay vì bắt mỗi màn hình tự nhớ quy tắc (xem chú thích
+  // `isLoading` trong TableCoreOptions). Spread `extraStateInput` sau cùng để
+  // state truyền tay vẫn thắng.
+  const rowCount = (tableOptions.data as unknown[] | undefined)?.length ?? 0;
+  const resolvedExtraState = React.useMemo(() => {
+    if (isLoading === undefined) return extraStateInput;
+    return {
+      showProgressBars: isLoading,
+      showSkeletons: isLoading && rowCount === 0,
+      ...extraStateInput,
+    };
+  }, [isLoading, rowCount, extraStateInput]);
+
   const extra = useTableExtraState({
     initialState: pickExtraState(initialState),
-    state: extraStateInput,
+    state: resolvedExtraState,
   });
 
   const allColumns = useTableDisplayColumns<TData>({
@@ -180,7 +205,9 @@ export function useTableCore<TData extends RowData>(
     slotProps: slotProps ?? {},
     layoutMode,
     enableTopToolbar,
-    enableBottomToolbar,
+    // Cuộn vô hạn thì không còn khái niệm trang: tắt luôn pagination và bottom
+    // toolbar để màn hình không phải nhớ tắt tay hai cái này mỗi lần bật.
+    enableBottomToolbar: enableInfiniteScroll ? false : enableBottomToolbar,
     enableToolbarInternalActions,
     enableDensityToggle,
     enableFullScreenToggle,
@@ -190,12 +217,20 @@ export function useTableCore<TData extends RowData>(
     enableStickyHeader,
     enableStickyFooter,
     enableColumnBorders,
-    enablePagination,
+    enablePagination: enableInfiniteScroll ? false : enablePagination,
     pageSizeOptions,
     enableRowNumbers,
     enableRowActions,
     positionActionsColumn,
     positionExpandColumn,
+    enableInfiniteScroll,
+    infiniteScrollThreshold,
+    hasNextPage,
+    isFetchingNextPage,
+    onFetchMore,
+    activeRowId,
+    onRowClick,
+    isLoading,
     renderRowActions,
     renderDetailPanel,
     renderTopToolbar,

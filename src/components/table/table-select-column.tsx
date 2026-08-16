@@ -99,7 +99,7 @@ function TableSelectCheckbox({
         <Checkbox
           id={id}
           className={cn(
-            "relative transition-[shadow,border,opacity] hover:border-primary/40",
+            "relative border-muted-foreground/60 transition-[shadow,border,opacity] hover:border-primary/60",
             "opacity-0 group-hover:opacity-100 data-[state=checked]:opacity-100",
             className,
           )}
@@ -115,7 +115,7 @@ function TableSelectCheckbox({
       <Checkbox
         id={id}
         className={cn(
-          "relative transition-[shadow,border] hover:border-primary/40",
+          "relative border-muted-foreground/60 transition-[shadow,border] hover:border-primary/60",
           className,
         )}
         checked={checked}
@@ -161,6 +161,9 @@ function TableSelectHeader<TData>({
     <span className="flex items-center justify-center">
       <Checkbox
         aria-label="Select all"
+        // `border-input` mặc định quá nhạt, gần như tàng hình trên nền header
+        // (đã tô màu) khi chưa tích. Đậm lên hẳn một bậc để vẫn thấy rõ ô.
+        className="border-muted-foreground/60 hover:border-primary/60"
         checked={
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && "indeterminate")

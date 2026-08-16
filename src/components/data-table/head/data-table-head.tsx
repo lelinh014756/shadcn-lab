@@ -51,11 +51,14 @@ export function DataTableHead<TData extends RowData>({
     <TableHeader
       {...headProps}
       className={cn(
-        // Nền/viền mặc định của <thead> (bg-muted, border-b) đã đủ để phân
-        // biệt head/body — ở đây chỉ còn lo phần định vị khi cuộn.
         enableStickyHeader && "sticky top-0 z-10",
+        // Nền header và biến `--head-pinned-bg` PHẢI đi thành cặp: ô đang ghim
+        // buộc nền ĐẶC để che nội dung cuộn bên dưới, nên nó không nhận được
+        // `bg-primary/10` (màu alpha đặt trên <thead>) — thiếu biến này thì cả
+        // mảng cột ghim rơi về `var(--background)` và lạc trắng giữa header.
+        // Giá trị là bản trộn sẵn tương đương: 10% primary trên `--background`.
+        "bg-primary/10 backdrop-blur-3xl [--head-pinned-bg:color-mix(in_oklch,var(--color-primary)_10%,var(--background))]",
         headProps?.className,
-        "bg-primary/10"
       )}
     >
       {table.getHeaderGroups().map((headerGroup) => (
@@ -82,10 +85,10 @@ export function DataTableHead<TData extends RowData>({
                   ...getColumnPinningStyle({
                     column: header.column,
                     withBorder: true,
-                    // Khớp nền của <thead> (bg-muted) — nếu để mặc định
-                    // var(--background) thì ô ghim sẽ trắng lạc giữa header
-                    // xám nhẹ.
-                    background: "initial",
+                    // Đọc biến đặt trên <thead> ở trên. Fallback `--muted` giữ
+                    // đúng hành vi cũ nếu ai đó thay className của head mà
+                    // quên khai biến.
+                    background: "var(--head-pinned-bg, var(--muted))",
                   }),
                   // Qua CSS var — xem useColumnSizeVars. Dùng --header- (không
                   // phải --col-) vì header có thể colSpan nhiều cột.
@@ -103,7 +106,6 @@ export function DataTableHead<TData extends RowData>({
                     !header.column.getIsPinned() &&
                     "border-e",
                   cellProps?.className,
-                  "backdrop-blur-3xl"
                 )}
               >
                 {header.isPlaceholder ? null : label ? (

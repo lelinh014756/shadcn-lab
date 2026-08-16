@@ -50,12 +50,12 @@
  *
  * ─── KHÔNG cần copy (đã nằm sẵn trong thư mục này) ─────────────────────────
  *
- * `use-data-table.ts`, `use-column-resize.ts`, `use-column-size-vars.ts`
- * (hooks/), `data-table.ts`, `export.ts`, `parsers.ts`, `column-size-vars.ts`
- * (lib/), `types.ts`, `config.ts` — toàn bộ phần chỉ data-table dùng (URL
- * pagination/sort/filter, resize qua CSS var, xuất CSV, schema filter nâng
- * cao). Đã xác nhận qua grep: không file nào trong nhóm này được data-grid
- * hay bất kỳ chỗ nào khác import.
+ * `use-data-table.ts`, `use-column-resize.ts`, `use-column-size-vars.ts`,
+ * `use-infinite-scroll.ts` (hooks/), `data-table.ts`, `export.ts`,
+ * `parsers.ts`, `column-size-vars.ts` (lib/), `types.ts`, `config.ts` — toàn
+ * bộ phần chỉ data-table dùng (URL pagination/sort/filter, resize qua CSS var,
+ * cuộn vô hạn, xuất CSV, schema filter nâng cao). Đã xác nhận qua grep: không
+ * file nào trong nhóm này được data-grid hay bất kỳ chỗ nào khác import.
  */
 
 // Primitive của action bar, re-export để nơi dùng tự lắp ghép item riêng.
@@ -66,7 +66,7 @@ export {
 } from "@/components/ui/action-bar";
 export { DataTableBody } from "./body/data-table-body";
 export { DataTableDetailPanel } from "./body/data-table-detail-panel";
-export { dataTableConfig, type DataTableConfig } from "./config";
+export { type DataTableConfig, dataTableConfig } from "./config";
 export { DataTable } from "./data-table";
 export { DataTableSkeleton } from "./data-table-skeleton";
 export { DataTableFooter } from "./footer/data-table-footer";
@@ -78,6 +78,7 @@ export {
 } from "./hooks/use-column-resize";
 export { useColumnSizeVars } from "./hooks/use-column-size-vars";
 export { useDataTable } from "./hooks/use-data-table";
+export { useInfiniteScroll } from "./hooks/use-infinite-scroll";
 export { DataTableColumnFilter } from "./inputs/data-table-column-filter";
 export { DataTableDateFilter } from "./inputs/data-table-date-filter";
 export { DataTableFacetedFilter } from "./inputs/data-table-faceted-filter";

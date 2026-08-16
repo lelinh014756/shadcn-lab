@@ -14,9 +14,8 @@
 
 import type { Header, RowData, Table } from "@tanstack/react-table";
 import * as React from "react";
-
-import { useColumnResize } from "../hooks/use-column-resize";
 import { cn } from "@/lib/utils";
+import { useColumnResize } from "../hooks/use-column-resize";
 
 interface DataTableColumnResizerProps<TData extends RowData> {
   header: Header<TData, unknown>;

@@ -61,6 +61,32 @@ interface DataTableRowProps<TData extends RowData> {
   isSelected: boolean;
   /** Cha chụp `row.getIsExpanded()` — xem chú thích đầu file, đừng gọi getter. */
   isExpanded: boolean;
+  /** Dòng đang mở ở panel chi tiết (`options.activeRowId`). */
+  isActive: boolean;
+}
+
+/**
+ * Tô đậm dòng đang xem chi tiết.
+ *
+ * `bg-primary/5` chỉ ăn vào các ô THƯỜNG. Ô đang ghim buộc phải có nền đặc để
+ * che nội dung cuộn bên dưới, nên nền alpha của `<tr>` không xuyên qua được —
+ * phải bơm màu tương đương (đã trộn sẵn, không alpha) qua biến CSS
+ * `--row-pinned-bg` để `getColumnPinningStyle` đọc. 5% trộn vào `--background`
+ * ra đúng màu nhìn thấy của `bg-primary/5` vì cùng nằm trên nền đó.
+ */
+const ACTIVE_ROW_CLASS =
+  "bg-primary/5 [--row-pinned-bg:color-mix(in_oklch,var(--color-primary)_5%,var(--background))]";
+
+/**
+ * Gạch dọc primary đánh dấu dòng đang xem, vẽ trên chính ô ĐẦU TIÊN chứ không
+ * phải `<tr>`: cạnh trái của `<tr>` nằm ngay dưới nền đặc của ô ghim đầu, nên
+ * box-shadow đặt ở `<tr>` bị che sạch. Nối thêm vào box-shadow viền ghim sẵn
+ * có thay vì ghi đè, kẻo mất luôn đường phân cách với cột kế tiếp.
+ */
+function withActiveRowMarker(pinBoxShadow: string | undefined): string {
+  return ["inset 2px 0 0 0 var(--color-primary)", pinBoxShadow]
+    .filter(Boolean)
+    .join(", ");
 }
 
 /**
@@ -105,8 +131,9 @@ function DataTableRowImpl<TData extends RowData>({
   enableColumnBorders,
   isSelected,
   isExpanded,
+  isActive,
 }: DataTableRowProps<TData>) {
-  const { renderDetailPanel } = table.options;
+  const { renderDetailPanel, onRowClick } = table.options;
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: columnVisibility/columnPinning/columnOrder điều khiển việc TanStack tính lại danh sách cell hiển thị, không phải reference của `row`.
   const cells = React.useMemo(
@@ -116,27 +143,41 @@ function DataTableRowImpl<TData extends RowData>({
 
   return (
     <>
-      <TableRow data-state={isSelected ? "selected" : undefined} {...rowProps}>
+      <TableRow
+        data-state={isSelected ? "selected" : undefined}
+        data-active-row={isActive ? "true" : undefined}
+        onClick={onRowClick ? () => onRowClick({ row, table }) : undefined}
+        {...rowProps}
+        className={cn(
+          onRowClick && "cursor-pointer",
+          isActive && ACTIVE_ROW_CLASS,
+          rowProps?.className,
+        )}
+      >
         {cells.map((cell, index) => {
           const cellProps = resolveSlotProp(slotProps.bodyCell, {
             table,
             cell,
           });
           const align = cell.column.columnDef.meta?.align;
+          const pinStyle = getColumnPinningStyle({
+            column: cell.column,
+            withBorder: true,
+          });
 
           return (
             <TableCell
               key={cell.id}
               {...cellProps}
               style={{
-                ...getColumnPinningStyle({
-                  column: cell.column,
-                  withBorder: true,
-                }),
+                ...pinStyle,
                 // Qua CSS var (useColumnSizeVars) — chuỗi này không đổi qua
                 // các lần render, chỉ giá trị biến đổi, nên trình duyệt tự lo
                 // phần resize mà không cần React ghi lại DOM của cell.
                 width: `calc(var(--col-${cell.column.id}-size) * 1px)`,
+                ...(isActive && index === 0
+                  ? { boxShadow: withActiveRowMarker(pinStyle.boxShadow) }
+                  : null),
                 ...cellProps?.style,
               }}
               className={cn(
@@ -170,6 +211,7 @@ export const DataTableRow = React.memo(DataTableRowImpl, (prev, next) => {
   // Snapshot do cha chụp, KHÔNG phải getter — xem chú thích đầu file.
   if (prev.isSelected !== next.isSelected) return false;
   if (prev.isExpanded !== next.isExpanded) return false;
+  if (prev.isActive !== next.isActive) return false;
   if (prev.density !== next.density) return false;
   if (prev.columnVisibility !== next.columnVisibility) return false;
   if (prev.columnPinning !== next.columnPinning) return false;

@@ -15,11 +15,6 @@ import type { Column } from "@tanstack/react-table";
 
 import type { Direction } from "@/types/data-grid";
 
-/** Approximate width of one header character, used to derive a minimum size. */
-const HEADER_CHAR_WIDTH_PX = 8.5;
-const HEADER_ICON_WIDTH_PX = 28;
-const HEADER_PADDING_PX = 24;
-
 export function getColumnPinningStyle<TData>({
   column,
   dir = "ltr",
@@ -94,32 +89,4 @@ export function getColumnPinningStyle<TData>({
         : "inset 1px 0 0 0 var(--border)"
       : undefined,
   };
-}
-
-/**
- * Bump `minSize` so a header label is never clipped before the user resizes.
- * Ported from Landsoft's `withHeaderAwareColumnSizes`.
- *
- * Documented consequence: a column declaring `size: 90` with the header
- * "Description" ends up at ~110 — the header width wins.
- */
-export function getHeaderAwareMinSize({
-  label,
-  minSize,
-  hasSortIcon = false,
-}: {
-  label: string;
-  minSize?: number;
-  hasSortIcon?: boolean;
-}): number {
-  const textWidth = label.length * HEADER_CHAR_WIDTH_PX;
-  const iconWidth = hasSortIcon ? HEADER_ICON_WIDTH_PX : 0;
-  const required = Math.ceil(textWidth + iconWidth + HEADER_PADDING_PX);
-
-  return Math.max(minSize ?? 0, required);
-}
-
-/** Header text of a column def, when it is a plain string. */
-export function getHeaderLabel(header: unknown, fallback: string): string {
-  return typeof header === "string" ? header : fallback;
 }

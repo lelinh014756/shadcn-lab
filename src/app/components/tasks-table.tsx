@@ -3,10 +3,10 @@
 import * as React from "react";
 import { DataTable } from "@/components/data-table/data-table";
 import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
+import { useDataTable } from "@/components/data-table/hooks/use-data-table";
 import { DataTableFilterList } from "@/components/data-table/menus/data-table-filter-list";
 import { DataTableFilterMenu } from "@/components/data-table/menus/data-table-filter-menu";
 import { DataTableSortList } from "@/components/data-table/menus/data-table-sort-list";
-import { useDataTable } from "@/components/data-table/hooks/use-data-table";
 import type {
   DataTableRowAction,
   QueryKeys,

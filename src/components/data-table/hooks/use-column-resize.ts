@@ -32,9 +32,57 @@ import {
 } from "../lib/column-size-vars";
 
 const CONTAINER_SELECTOR = '[data-slot="data-table-container"]';
+const HEAD_LABEL_SELECTOR = '[data-slot="table-head-label"]';
+const HEAD_MENU_TRIGGER_SELECTOR = '[data-slot="table-head-menu-trigger"]';
 
 function getClientX(event: MouseEvent | TouchEvent): number {
   return "touches" in event ? (event.touches[0]?.clientX ?? 0) : event.clientX;
+}
+
+/**
+ * Bề rộng tối thiểu để header của cột không bị cắt chữ: padding hai bên + chữ
+ * đầy đủ + khoảng cách + icon mũi tên mở dropdown.
+ *
+ * ĐO THẲNG TRÊN DOM thay vì ước lượng theo số ký tự (kiểu `label.length * 8.5`)
+ * — cách ước lượng sai khá xa với tiếng Việt có dấu, và sai khác nhau ở từng
+ * mức density vì cỡ chữ/padding đổi theo. Đo một lần lúc `mousedown` nên không
+ * ảnh hưởng gì tới độ mượt khi kéo.
+ *
+ * Bề rộng chữ đo bằng `Range` chứ KHÔNG phải `label.scrollWidth`: `scrollWidth`
+ * trả số nguyên đã làm tròn, còn flex thì chia lại theo sub-pixel — chênh lệch
+ * làm tròn giữa hai bên đủ để chữ vẫn bị cắt mất 1-2px ngay tại ngưỡng min.
+ * `Range` cho bề rộng chữ ĐẦY ĐỦ, chính xác tới phần thập phân, kể cả khi span
+ * đang bị `truncate` cắt.
+ */
+function measureHeaderMinWidth(headerCell: Element | null): number {
+  const label = headerCell?.querySelector<HTMLElement>(HEAD_LABEL_SELECTOR);
+  if (!label) return 0;
+
+  // Padding nằm trên trigger (nó phủ trọn `<th>` bằng `absolute inset-0`), còn
+  // header không có menu thì padding nằm trên chính `<th>`.
+  const box =
+    headerCell?.querySelector<HTMLElement>(HEAD_MENU_TRIGGER_SELECTOR) ??
+    (headerCell as HTMLElement | null);
+  if (!box) return 0;
+
+  const style = getComputedStyle(box);
+  const paddingX =
+    Number.parseFloat(style.paddingLeft) +
+    Number.parseFloat(style.paddingRight);
+  const gap = Number.parseFloat(style.columnGap) || 0;
+
+  let iconWidth = 0;
+  for (const icon of box.querySelectorAll<SVGElement>(":scope > svg")) {
+    iconWidth += icon.getBoundingClientRect().width;
+  }
+
+  const range = document.createRange();
+  range.selectNodeContents(label);
+  const textWidth = range.getBoundingClientRect().width || label.scrollWidth;
+
+  return Math.ceil(
+    paddingX + textWidth + (iconWidth > 0 ? gap + iconWidth : 0),
+  );
 }
 
 export type ColumnResizeStarter<TData extends RowData> = (
@@ -60,7 +108,17 @@ export function useColumnResize<TData extends RowData>(
       const startX = getClientX(
         startEvent.nativeEvent as MouseEvent | TouchEvent,
       );
-      const minSize = column.columnDef.minSize ?? defaultColumnDef.minSize ?? 0;
+      // Chặn ở mức lớn hơn giữa `minSize` khai báo và bề rộng header thật —
+      // `minSize` khai báo tay dễ đặt hụt (hoặc bỏ trống, rơi về mặc định 20px
+      // của TanStack) khiến kéo được tới mức nuốt mất tiêu đề cột.
+      const declaredMinSize =
+        column.columnDef.minSize ?? defaultColumnDef.minSize ?? 0;
+      const minSize = Math.max(
+        declaredMinSize,
+        measureHeaderMinWidth(
+          (startEvent.currentTarget as HTMLElement).closest("th"),
+        ),
+      );
       const maxSize =
         column.columnDef.maxSize ??
         defaultColumnDef.maxSize ??

@@ -1,5 +1,5 @@
 # Session State
-<!-- Generated: 2026-08-16T13:16:33.965Z -->
+<!-- Generated: 2026-08-16T14:41:29.526Z -->
 <!-- Branch: unknown -->
 <!-- Plan: none -->
 
@@ -2082,13 +2082,14 @@
 
 ## Key Files Modified
 - .claude/hooks/.logs/hook-log.jsonl
-- .claude/session-state/archive/20260816-1331.md
+- .claude/session-state/archive/20260816-1526.md
+- .claude/session-state/archive/20260816-1540.md
+- .claude/session-state/archive/20260816-1550.md
 - .claude/session-state/latest.md
 - public/r/data-grid-select-column.json
 - public/r/data-grid.json
 - public/r/data-table-filter-list.json
 - public/r/data-table-filter-menu.json
-- public/r/data-table-sort-list.json
 - public/r/data-table.json
 - public/r/registry.json
 - registry.json
@@ -2097,7 +2098,6 @@
 - src/app/components/tasks-table-toolbar-actions.tsx
 - src/app/components/tasks-table.tsx
 - src/app/employees/hooks/use-employees-table.tsx
-- src/app/hooks/use-tasks-data.ts
+- src/app/employees/screens/employees-list-screen.tsx
 - src/components/data-table/body/data-table-body.tsx
-- src/components/data-table/head/data-table-column-resizer.tsx
-- src/components/data-table/head/data-table-head-menu.tsx
+- src/components/data-table/body/data-table-row.tsx

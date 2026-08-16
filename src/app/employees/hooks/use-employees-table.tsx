@@ -16,9 +16,8 @@ import type {
   VisibilityState,
 } from "@tanstack/react-table";
 import * as React from "react";
-
-import type { TableCoreInstance } from "@/hooks/table/use-table-core";
 import { useDataTable } from "@/components/data-table/hooks/use-data-table";
+import type { TableCoreInstance } from "@/hooks/table/use-table-core";
 import { formatDate } from "@/lib/format";
 
 /** dd/MM/yyyy — the long-form default overflows the 110px date columns. */
@@ -28,10 +27,8 @@ const SHORT_DATE: Intl.DateTimeFormatOptions = {
   year: "numeric",
 };
 
-import { getColumnPinningStyle } from "@/lib/table/column-utils";
 import { tableLocalizationVi } from "@/lib/table/localization";
 import type { Employee } from "@/mocks/employees";
-import { DISPLAY_COLUMN_IDS } from "@/types/table";
 
 import { EmployeeRowActions } from "../components/employee-row-actions";
 import { EmployeeStatusBadge } from "../components/employee-status-badge";
@@ -80,6 +77,9 @@ interface UseEmployeesTableProps {
   isLoading: boolean;
   /** Infinite mode drops pagination and the bottom toolbar entirely. */
   mode: "paginated" | "infinite";
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
+  onFetchMore?: () => void;
   pageCount: number;
   pageSize: number;
   /** Toolbar riêng của màn hình — render thay DataTableTopToolbar. */
@@ -98,6 +98,9 @@ export function useEmployeesTable({
   selectedRowId,
   isLoading,
   mode,
+  hasNextPage,
+  isFetchingNextPage,
+  onFetchMore,
   pageCount,
   pageSize,
   renderTopToolbar,
@@ -334,7 +337,7 @@ export function useEmployeesTable({
   const { table } = useDataTable<Employee>({
     data,
     columns,
-    pageCount: isInfinite ? 1 : pageCount,
+    pageCount,
     rowCount,
     getRowId: (row) => String(row.id),
     localization: tableLocalizationVi,
@@ -348,15 +351,6 @@ export function useEmployeesTable({
       columnVisibility,
       columnPinning,
       columnSizing,
-      showProgressBars: isLoading,
-      // Chỉ hiện skeleton lúc CHƯA có dòng nào để hiển thị (tải lần đầu, hoặc
-      // đổi bộ lọc ra kết quả rỗng đang chờ) — không dùng thẳng `isLoading`,
-      // vì cờ đó bật lại ở MỌI lần tải (đổi trang, gõ tìm kiếm...), trong khi
-      // `data` vẫn còn giữ trang cũ cho tới khi trang mới về. Nếu skeleton ăn
-      // theo `isLoading` thẳng, bảng sẽ nhấp nháy xoá sạch dòng đang có mỗi
-      // lần chuyển trang — đã có `showProgressBars` (thanh loading mỏng) lo
-      // phần đó rồi.
-      showSkeletons: isLoading && data.length === 0,
     },
     onColumnSizingChange,
     onColumnPinningChange,
@@ -364,13 +358,23 @@ export function useEmployeesTable({
 
     renderTopToolbar,
 
+    // Core tự suy ra `showProgressBars` + `showSkeletons` từ cờ này.
+    isLoading,
+
+    // Bật là core tự tắt pagination + bottom toolbar và tự lắng nghe scroll.
+    enableInfiniteScroll: isInfinite,
+    hasNextPage,
+    isFetchingNextPage,
+    onFetchMore,
+
+    // Core lo tô nền dòng (kể cả các ô đang ghim) + gạch dọc primary.
+    activeRowId: selectedRowId,
+    onRowClick: ({ row }) => onRowClick(row.original),
+
     enableRowSelection: settings.showMultiRowSelection,
     enableRowNumbers: true,
     enableRowActions: true,
     enableColumnResizing: true,
-    columnResizeMode: "onChange",
-    enablePagination: !isInfinite,
-    enableBottomToolbar: !isInfinite,
     enableStickyHeader: true,
     enableStickyFooter: settings.showSummaryFooter,
     enableColumnBorders: true,
@@ -381,56 +385,6 @@ export function useEmployeesTable({
     renderRowActions: ({ row }) => (
       <EmployeeRowActions row={row} onEdit={onEdit} />
     ),
-
-    slotProps: {
-      bodyRow: ({ row }) => {
-        const isSelected = row.id === selectedRowId;
-        return {
-          onClick: () => onRowClick(row.original),
-          "data-selected-row": isSelected ? "true" : undefined,
-          // `[--row-pinned-bg:...]` gán biến CSS trên <tr>, không phải nền
-          // trực tiếp — ô ghim đọc biến này qua `getColumnPinningStyle` (xem
-          // chú thích ở đó) để nền đặc của nó khớp màu với `bg-primary/5` của
-          // các ô thường thay vì trắng lạc tông. Trộn thẳng vào `--background`
-          // (không dùng alpha) vì ô ghim bắt buộc nền đặc để che nội dung cuộn
-          // bên dưới — 5% ra cùng một màu nhìn thấy vì cùng nằm trên
-          // `--background`, chỉ khác đặc hay trong suốt.
-          className: isSelected
-            ? "cursor-pointer bg-primary/5 [--row-pinned-bg:color-mix(in_oklch,var(--color-primary)_5%,var(--background))]"
-            : "cursor-pointer",
-        };
-      },
-      bodyCell: ({ cell }) => {
-        if (
-          cell.column.id !== DISPLAY_COLUMN_IDS.select ||
-          cell.row.id !== selectedRowId
-        ) {
-          return {};
-        }
-
-        // Gạch dọc primary đánh dấu hàng đang chọn, vẽ trên chính ô ghim đầu
-        // tiên (không phải <tr>) — cạnh trái của <tr> nằm ngay dưới nền đặc
-        // của ô này, box-shadow đặt ở <tr> sẽ bị che mất hoàn toàn. Gọi lại
-        // `getColumnPinningStyle` để lấy đúng box-shadow viền ghim đang có rồi
-        // nối thêm gạch dọc — không thay hẳn, kẻo mất luôn viền phân cách với
-        // cột kế tiếp.
-        const { boxShadow: pinBoxShadow } = getColumnPinningStyle({
-          column: cell.column,
-          withBorder: true,
-        });
-
-        return {
-          style: {
-            boxShadow: [
-              "inset 2px 0 0 0 var(--color-primary)",
-              pinBoxShadow,
-            ]
-              .filter(Boolean)
-              .join(", "),
-          },
-        };
-      },
-    },
   });
 
   return { table };
