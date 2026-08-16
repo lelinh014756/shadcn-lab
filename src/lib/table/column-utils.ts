@@ -24,15 +24,26 @@ export function getColumnPinningStyle<TData>({
   column,
   dir = "ltr",
   withBorder = false,
-  background = "var(--background)",
+  background = "var(--row-pinned-bg, var(--background))",
 }: {
   column: Column<TData>;
   dir?: Direction;
   withBorder?: boolean;
   /**
-   * Nền cho ô đang ghim (phải đặc, không alpha) — mặc định khớp nền trang.
-   * Header truyền `var(--muted)` để khớp với nền `bg-muted` của `<thead>`,
-   * tránh mảng ghim nổi màu khác với phần header còn lại.
+   * Nền cho ô đang ghim (phải đặc, không alpha) — mặc định khớp nền trang,
+   * nhưng đi qua biến `--row-pinned-bg` trước khi rơi về `--background`.
+   *
+   * Lý do có lớp gián tiếp này: ô ghim BẮT BUỘC nền đặc (để che nội dung
+   * cuộn bên dưới), nên nó luôn đè lên mọi nền `<tr>` set bằng class Tailwind
+   * (`bg-primary/5`...) — hàng nào tô màu để đánh dấu (đang chọn, đang hover
+   * cố định...) thì các cột ghim của hàng đó vẫn trắng trơn, lạc màu. Đặt
+   * `--row-pinned-bg` trên `<tr>` (ví dụ qua class `[--row-pinned-bg:...]`)
+   * là cách duy nhất xuyên được vào bên trong nền đặc của ô ghim, vì biến CSS
+   * cascade qua `var()` còn màu nền thì không. Không hàng nào set biến này
+   * thì fallback về `--background` y hệt trước đây.
+   *
+   * Header truyền thẳng `var(--muted)` (bỏ qua lớp gián tiếp) để khớp nền
+   * `bg-muted` của `<thead>`, tránh mảng ghim nổi màu khác với header còn lại.
    */
   background?: string;
 }): React.CSSProperties {

@@ -1,5 +1,5 @@
 # Session State
-<!-- Generated: 2026-08-16T08:26:52.707Z -->
+<!-- Generated: 2026-08-16T08:50:19.603Z -->
 <!-- Branch: unknown -->
 <!-- Plan: none -->
 
@@ -2074,22 +2074,7 @@
 
 ## Key Files Modified
 - .claude/hooks/.logs/hook-log.jsonl
-- .claude/session-state/archive/20260816-0141.md
-- .claude/session-state/archive/20260816-0143.md
+- .claude/session-state/archive/20260816-0159.md
 - .claude/session-state/latest.md
-- public/r/data-grid-select-column.json
-- public/r/data-grid.json
-- public/r/data-table.json
-- public/r/registry.json
-- registry.json
-- src/app/data-grid-live/components/data-grid-live-demo.tsx
-- src/app/data-grid-multiplayer/components/data-grid-multiplayer-demo.tsx
-- src/app/data-grid/components/data-grid-demo.tsx
-- src/app/employees/components/employees-detail-panel.tsx
-- src/app/employees/screens/employees-list-screen.tsx
-- src/components/data-table/body/data-table-row.tsx
-- src/components/data-table/data-table.tsx
-- src/components/data-table/footer/data-table-footer.tsx
-- src/components/data-table/head/data-table-head-menu.tsx
-- src/components/data-table/index.ts
-- src/components/data-table/table/data-table-container.tsx
+- src/app/employees/hooks/use-employees-table.tsx
+- src/lib/table/column-utils.ts

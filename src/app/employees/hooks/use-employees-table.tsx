@@ -28,8 +28,10 @@ const SHORT_DATE: Intl.DateTimeFormatOptions = {
   year: "numeric",
 };
 
+import { getColumnPinningStyle } from "@/lib/table/column-utils";
 import { tableLocalizationVi } from "@/lib/table/localization";
 import type { Employee } from "@/mocks/employees";
+import { DISPLAY_COLUMN_IDS } from "@/types/table";
 
 import { EmployeeRowActions } from "../components/employee-row-actions";
 import { EmployeeStatusBadge } from "../components/employee-status-badge";
@@ -373,14 +375,53 @@ export function useEmployeesTable({
     ),
 
     slotProps: {
-      bodyRow: ({ row }) => ({
-        onClick: () => onRowClick(row.original),
-        "data-selected-row": row.id === selectedRowId ? "true" : undefined,
-        className:
-          row.id === selectedRowId
-            ? "cursor-pointer bg-primary/5 shadow-[inset_2px_0_0_0_var(--color-primary)]"
+      bodyRow: ({ row }) => {
+        const isSelected = row.id === selectedRowId;
+        return {
+          onClick: () => onRowClick(row.original),
+          "data-selected-row": isSelected ? "true" : undefined,
+          // `[--row-pinned-bg:...]` gán biến CSS trên <tr>, không phải nền
+          // trực tiếp — ô ghim đọc biến này qua `getColumnPinningStyle` (xem
+          // chú thích ở đó) để nền đặc của nó khớp màu với `bg-primary/5` của
+          // các ô thường thay vì trắng lạc tông. Trộn thẳng vào `--background`
+          // (không dùng alpha) vì ô ghim bắt buộc nền đặc để che nội dung cuộn
+          // bên dưới — 5% ra cùng một màu nhìn thấy vì cùng nằm trên
+          // `--background`, chỉ khác đặc hay trong suốt.
+          className: isSelected
+            ? "cursor-pointer bg-primary/5 [--row-pinned-bg:color-mix(in_oklch,var(--color-primary)_5%,var(--background))]"
             : "cursor-pointer",
-      }),
+        };
+      },
+      bodyCell: ({ cell }) => {
+        if (
+          cell.column.id !== DISPLAY_COLUMN_IDS.select ||
+          cell.row.id !== selectedRowId
+        ) {
+          return {};
+        }
+
+        // Gạch dọc primary đánh dấu hàng đang chọn, vẽ trên chính ô ghim đầu
+        // tiên (không phải <tr>) — cạnh trái của <tr> nằm ngay dưới nền đặc
+        // của ô này, box-shadow đặt ở <tr> sẽ bị che mất hoàn toàn. Gọi lại
+        // `getColumnPinningStyle` để lấy đúng box-shadow viền ghim đang có rồi
+        // nối thêm gạch dọc — không thay hẳn, kẻo mất luôn viền phân cách với
+        // cột kế tiếp.
+        const { boxShadow: pinBoxShadow } = getColumnPinningStyle({
+          column: cell.column,
+          withBorder: true,
+        });
+
+        return {
+          style: {
+            boxShadow: [
+              "inset 2px 0 0 0 var(--color-primary)",
+              pinBoxShadow,
+            ]
+              .filter(Boolean)
+              .join(", "),
+          },
+        };
+      },
     },
   });
 
