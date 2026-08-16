@@ -66,6 +66,9 @@ export function EmployeesListScreen() {
     active: parseAsBoolean,
     page: parseAsInteger.withDefault(1),
     perPage: parseAsInteger.withDefault(20),
+    // Dòng đang xem chi tiết lưu theo `code` (vd `NV0003`) cho URL dễ đọc —
+    // khác với `getRowId` của bảng (dùng `id`), nên bảng phải được chỉ rõ khoá
+    // qua `getRowActiveKey`.
     selected: parseAsInteger,
   });
 
@@ -182,7 +185,7 @@ export function EmployeesListScreen() {
     onColumnSizingChange,
     onEdit,
     onRowClick,
-    selectedRowId: search.selected != null ? String(search.selected) : null,
+    selectedRowId: search.selected,
     isLoading: list.isLoading || list.isFetchingNextPage,
     mode: enableInfinite ? "infinite" : "paginated",
     hasNextPage: list.hasNextPage,

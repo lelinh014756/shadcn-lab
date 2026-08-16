@@ -1,6 +1,6 @@
 "use client";
 
-import type { RowData } from "@tanstack/react-table";
+import type { Row, RowData } from "@tanstack/react-table";
 import * as React from "react";
 
 import { Skeleton } from "@/components/ui/skeleton";
@@ -75,11 +75,19 @@ export function DataTableBody<TData extends RowData>({
   } = table.getState();
   const {
     activeRowId,
+    getRowActiveKey,
     enableColumnBorders,
     localization,
     renderEmptyRowsFallback,
     slotProps,
   } = table.options;
+
+  // So bằng chuỗi để `?selected=3` (string từ URL) khớp được với khoá số.
+  const isRowActive = (row: Row<TData>) => {
+    if (activeRowId == null) return false;
+    const key = getRowActiveKey ? getRowActiveKey(row) : row.id;
+    return key != null && String(key) === String(activeRowId);
+  };
 
   const bodyProps = resolveSlotProp(slotProps.body, { table });
 
@@ -139,7 +147,7 @@ export function DataTableBody<TData extends RowData>({
           // chú thích đầu data-table-row.tsx.
           isSelected={row.getIsSelected()}
           isExpanded={row.getIsExpanded()}
-          isActive={activeRowId != null && row.id === activeRowId}
+          isActive={isRowActive(row)}
         />
       ))}
     </TableBody>

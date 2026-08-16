@@ -73,7 +73,7 @@ interface UseEmployeesTableProps {
   onColumnSizingChange: OnChangeFn<Record<string, number>>;
   onEdit: (employee: Employee) => void;
   onRowClick: (employee: Employee) => void;
-  selectedRowId: string | null;
+  selectedRowId: number | null;
   isLoading: boolean;
   /** Infinite mode drops pagination and the bottom toolbar entirely. */
   mode: "paginated" | "infinite";
@@ -118,6 +118,9 @@ export function useEmployeesTable({
         size: 90,
         minSize: 72,
         maxSize: 140,
+        // `footer` là thứ quyết định hàng tổng hợp có gì để hiện — cột nào
+        // không khai thì ô tương ứng ở footer để trống.
+        footer: ({ table }) => `${table.getRowModel().rows.length} dòng`,
       },
       {
         id: "fullName",
@@ -257,6 +260,12 @@ export function useEmployeesTable({
         accessorKey: "isActive",
         header: "Trạng thái",
         size: 160,
+        footer: ({ table }) => {
+          const active = table
+            .getRowModel()
+            .rows.filter((row) => row.original.isActive).length;
+          return `${active} hoạt động`;
+        },
         cell: ({ row }) => (
           <span
             className={
@@ -368,7 +377,10 @@ export function useEmployeesTable({
     onFetchMore,
 
     // Core lo tô nền dòng (kể cả các ô đang ghim) + gạch dọc primary.
+    // Màn hình lưu dòng đang chọn theo `code` (`?selected=NV0003`) chứ không
+    // theo `row.id`, nên phải chỉ rõ lấy khoá ở đâu.
     activeRowId: selectedRowId,
+    getRowActiveKey: (row) => row.original.id,
     onRowClick: ({ row }) => onRowClick(row.original),
 
     enableRowSelection: settings.showMultiRowSelection,
@@ -376,7 +388,8 @@ export function useEmployeesTable({
     enableRowActions: true,
     enableColumnResizing: true,
     enableStickyHeader: true,
-    enableStickyFooter: settings.showSummaryFooter,
+    enableSummaryFooter: settings.showSummaryFooter,
+    enableStickyFooter: true,
     enableColumnBorders: true,
 
     // The screen owns filters and actions, so the built-in filter row is off.

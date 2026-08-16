@@ -19,11 +19,17 @@ export function getColumnPinningStyle<TData>({
   column,
   dir = "ltr",
   withBorder = false,
+  borderColor = "var(--border)",
   background = "var(--row-pinned-bg, var(--background))",
 }: {
   column: Column<TData>;
   dir?: Direction;
   withBorder?: boolean;
+  /**
+   * Màu đường phân cách. Tách ra tham số vì `--border` chỉ đủ tương phản trên
+   * nền trắng của body — ở header đã tô màu, nó gần như trùng nền và biến mất.
+   */
+  borderColor?: string;
   /**
    * Nền cho ô đang ghim (phải đặc, không alpha) — mặc định khớp nền trang,
    * nhưng đi qua biến `--row-pinned-bg` trước khi rơi về `--background`.
@@ -85,8 +91,8 @@ export function getColumnPinningStyle<TData>({
     // của chính cột đó nên không bị cột khác đè.
     boxShadow: withBorder
       ? isPinned === "left"
-        ? "inset -1px 0 0 0 var(--border)"
-        : "inset 1px 0 0 0 var(--border)"
+        ? `inset -1px 0 0 0 ${borderColor}`
+        : `inset 1px 0 0 0 ${borderColor}`
       : undefined,
   };
 }

@@ -60,6 +60,7 @@ export interface DefinedTableCoreOptions<TData extends RowData>
   enableColumnFilterToggle: boolean;
   enableTableSettings: boolean;
   enableStickyHeader: boolean;
+  enableSummaryFooter: boolean;
   enableStickyFooter: boolean;
   enableColumnBorders: boolean;
   enablePagination: boolean;
@@ -115,6 +116,7 @@ export function useTableCore<TData extends RowData>(
     enableColumnFilterToggle = true,
     enableTableSettings = false,
     enableStickyHeader = true,
+    enableSummaryFooter = true,
     enableStickyFooter = false,
     enableColumnBorders = false,
     enablePagination = true,
@@ -130,6 +132,7 @@ export function useTableCore<TData extends RowData>(
     isFetchingNextPage,
     onFetchMore,
     activeRowId,
+    getRowActiveKey,
     onRowClick,
     isLoading,
     renderRowActions,
@@ -215,6 +218,7 @@ export function useTableCore<TData extends RowData>(
     enableColumnFilterToggle,
     enableTableSettings,
     enableStickyHeader,
+    enableSummaryFooter,
     enableStickyFooter,
     enableColumnBorders,
     enablePagination: enableInfiniteScroll ? false : enablePagination,
@@ -229,6 +233,7 @@ export function useTableCore<TData extends RowData>(
     isFetchingNextPage,
     onFetchMore,
     activeRowId,
+    getRowActiveKey,
     onRowClick,
     isLoading,
     renderRowActions,

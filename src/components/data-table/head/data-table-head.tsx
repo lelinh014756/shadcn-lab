@@ -52,12 +52,15 @@ export function DataTableHead<TData extends RowData>({
       {...headProps}
       className={cn(
         enableStickyHeader && "sticky top-0 z-10",
-        // Nền header và biến `--head-pinned-bg` PHẢI đi thành cặp: ô đang ghim
-        // buộc nền ĐẶC để che nội dung cuộn bên dưới, nên nó không nhận được
-        // `bg-primary/10` (màu alpha đặt trên <thead>) — thiếu biến này thì cả
-        // mảng cột ghim rơi về `var(--background)` và lạc trắng giữa header.
-        // Giá trị là bản trộn sẵn tương đương: 10% primary trên `--background`.
-        "bg-primary/10 backdrop-blur-3xl [--head-pinned-bg:color-mix(in_oklch,var(--color-primary)_10%,var(--background))]",
+        // Ba thứ dưới đây PHẢI đi cùng nhau khi đổi nền header:
+        //   `bg-*`             nền nhìn thấy của <thead>
+        //   `--head-pinned-bg` bản ĐẶC tương đương, cho ô ghim (ô ghim buộc nền
+        //                      đặc để che nội dung cuộn, không ăn được màu alpha)
+        //   `--head-border`    màu đường phân cách cột. `--border` mặc định chỉ
+        //                      đủ tương phản trên nền trắng của body; trên nền
+        //                      header đã tô màu nó gần trùng nền và mất hút, nên
+        //                      phải đậm hơn hẳn (25% primary so với nền 10%).
+        "bg-primary/10 backdrop-blur-3xl [--head-border:color-mix(in_oklch,var(--color-primary)_25%,var(--background))] [--head-pinned-bg:color-mix(in_oklch,var(--color-primary)_10%,var(--background))]",
         headProps?.className,
       )}
     >
@@ -85,10 +88,10 @@ export function DataTableHead<TData extends RowData>({
                   ...getColumnPinningStyle({
                     column: header.column,
                     withBorder: true,
-                    // Đọc biến đặt trên <thead> ở trên. Fallback `--muted` giữ
-                    // đúng hành vi cũ nếu ai đó thay className của head mà
-                    // quên khai biến.
+                    // Đọc biến đặt trên <thead> ở trên. Fallback giữ đúng hành
+                    // vi cũ nếu ai đó thay className của head mà quên khai biến.
                     background: "var(--head-pinned-bg, var(--muted))",
+                    borderColor: "var(--head-border, var(--border))",
                   }),
                   // Qua CSS var — xem useColumnSizeVars. Dùng --header- (không
                   // phải --col-) vì header có thể colSpan nhiều cột.
@@ -101,10 +104,11 @@ export function DataTableHead<TData extends RowData>({
                   // Cột ghim tự vẽ viền bằng box-shadow trong
                   // getColumnPinningStyle — border-e ở đây chỉ dành cho cột
                   // thường (nếu để cả hai, cột ghim kế tiếp sẽ đè mất border-e).
+                  // Cùng dùng `--head-border` để hai kiểu vẽ ra đúng một màu.
                   enableColumnBorders &&
                     !isLast &&
                     !header.column.getIsPinned() &&
-                    "border-e",
+                    "border-e border-e-[var(--head-border,var(--border))]",
                   cellProps?.className,
                 )}
               >

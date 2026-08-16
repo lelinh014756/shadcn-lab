@@ -255,6 +255,17 @@ export interface TableCoreOptions<TData extends RowData>
   /** Kẻ đường lưới dọc giữa các cột, giống data-grid. */
   enableColumnBorders?: boolean;
   enableStickyHeader?: boolean;
+  /**
+   * Hiện hàng tổng hợp ở chân bảng. Mặc định `true` — khi đó footer vẫn chỉ
+   * xuất hiện nếu có ít nhất một cột khai `footer`, nên bật sẵn không gây ảnh
+   * hưởng gì.
+   *
+   * TÁCH RIÊNG với `enableStickyFooter`: cái này quyết định CÓ footer hay
+   * không, cái kia chỉ quyết định footer có dính đáy khi cuộn hay không. Nối
+   * một công tắc "hiện dòng tổng hợp" vào `enableStickyFooter` là không có
+   * tác dụng gì — đó chỉ đổi cách định vị của thứ vốn đã không hiển thị.
+   */
+  enableSummaryFooter?: boolean;
   enableStickyFooter?: boolean;
   renderEmptyRowsFallback?: (context: {
     table: TanstackTable<TData>;
@@ -262,12 +273,23 @@ export interface TableCoreOptions<TData extends RowData>
 
   // Dòng đang mở ở panel chi tiết (master-detail)
   /**
-   * Id (theo `getRowId`) của dòng đang xem chi tiết. Core lo phần tô đậm:
-   * nền dòng, nền các ô ĐANG GHIM (ô ghim buộc nền đặc nên không ăn được nền
-   * alpha của `<tr>`) và gạch dọc primary ở ô đầu tiên. Tự làm lại ở từng màn
-   * hình rất dễ sai ba chỗ đó, nên gom vào đây.
+   * Khoá của dòng đang xem chi tiết. Core lo phần tô đậm: nền dòng, nền các ô
+   * ĐANG GHIM (ô ghim buộc nền đặc nên không ăn được nền alpha của `<tr>`) và
+   * gạch dọc primary ở ô đầu tiên. Tự làm lại ở từng màn hình rất dễ sai ba
+   * chỗ đó, nên gom vào đây.
+   *
+   * Mặc định so với `row.id` (tức `getRowId`). Nếu màn hình lưu khoá theo
+   * trường khác — vd `?selected=NV0003` theo `code` — thì khai thêm
+   * `getRowActiveKey` chứ đừng đổi `getRowId`, vì `getRowId` còn là khoá của
+   * `rowSelection`/`expanded` và đổi nó kéo theo cả hai.
    */
-  activeRowId?: string | null;
+  activeRowId?: string | number | null;
+  /**
+   * Lấy khoá đem so với `activeRowId`. Mặc định `row.id`.
+   *
+   *   getRowActiveKey: (row) => row.original.code
+   */
+  getRowActiveKey?: (row: Row<TData>) => string | number | null | undefined;
   /** Click vào một dòng bất kỳ (trừ vùng checkbox chọn dòng). */
   onRowClick?: (context: {
     row: Row<TData>;

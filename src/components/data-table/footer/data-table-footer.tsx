@@ -21,13 +21,18 @@ export function DataTableFooter<TData extends RowData>({
   table,
 }: DataTableFooterProps<TData>) {
   const { density } = table.getState();
-  const { enableColumnBorders, enableStickyFooter, slotProps } = table.options;
+  const {
+    enableColumnBorders,
+    enableSummaryFooter,
+    enableStickyFooter,
+    slotProps,
+  } = table.options;
 
   const hasFooter = table
     .getVisibleLeafColumns()
     .some((column) => column.columnDef.footer);
 
-  if (!hasFooter) return null;
+  if (!enableSummaryFooter || !hasFooter) return null;
 
   const footerProps = resolveSlotProp(slotProps.footer, { table });
   const footerRowProps = resolveSlotProp(slotProps.footerRow, { table });
