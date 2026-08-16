@@ -56,11 +56,14 @@ export function DataTableHead<TData extends RowData>({
         //   `bg-*`             nền nhìn thấy của <thead>
         //   `--head-pinned-bg` bản ĐẶC tương đương, cho ô ghim (ô ghim buộc nền
         //                      đặc để che nội dung cuộn, không ăn được màu alpha)
-        //   `--head-border`    màu đường phân cách cột. `--border` mặc định chỉ
-        //                      đủ tương phản trên nền trắng của body; trên nền
-        //                      header đã tô màu nó gần trùng nền và mất hút, nên
-        //                      phải đậm hơn hẳn (25% primary so với nền 10%).
-        "bg-primary/10 backdrop-blur-3xl [--head-border:color-mix(in_oklch,var(--color-primary)_25%,var(--background))] [--head-pinned-bg:color-mix(in_oklch,var(--color-primary)_10%,var(--background))]",
+        //   `--head-border`    màu đường phân cách cột — MỘT biến duy nhất, đọc
+        //                      bởi cả box-shadow của ô ghim lẫn `border-e` của ô
+        //                      thường, nên hai bên luôn ra đúng một màu. Cố định
+        //                      trắng bán trong suốt (không mix theo primary) —
+        //                      nền header luôn đã có lớp `bg-primary/10` phủ lên
+        //                      trang, nên vạch trắng nổi lên như highlight thay
+        //                      vì phải tính lại theo từng theme sáng/tối.
+        "bg-primary/10 backdrop-blur-3xl [--head-border:color-mix(in_oklch,white_35%,transparent)] [--head-pinned-bg:color-mix(in_oklch,var(--color-primary)_10%,var(--background))]",
         headProps?.className,
       )}
     >
