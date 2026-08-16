@@ -88,7 +88,7 @@
         },
         {
           "type": "registry:hook",
-          "path": "src/hooks/use-data-table.ts"
+          "path": "src/components/data-table/hooks/use-data-table.ts"
         },
         {
           "type": "registry:hook",
@@ -96,7 +96,7 @@
         },
         {
           "type": "registry:lib",
-          "path": "src/lib/data-table.ts"
+          "path": "src/components/data-table/lib/data-table.ts"
         },
         {
           "type": "registry:lib",
@@ -104,17 +104,17 @@
         },
         {
           "type": "registry:lib",
-          "path": "src/lib/parsers.ts"
+          "path": "src/components/data-table/lib/parsers.ts"
         },
         {
           "type": "registry:file",
-          "target": "src/config/data-table.ts",
-          "path": "src/config/data-table.ts"
+          "target": "src/components/data-table/config.ts",
+          "path": "src/components/data-table/config.ts"
         },
         {
           "type": "registry:file",
-          "target": "src/types/data-table.ts",
-          "path": "src/types/data-table.ts"
+          "target": "src/components/data-table/types.ts",
+          "path": "src/components/data-table/types.ts"
         },
         {
           "type": "registry:component",
@@ -126,7 +126,7 @@
         },
         {
           "type": "registry:component",
-          "path": "src/lib/table/column-size-vars.ts"
+          "path": "src/components/data-table/lib/column-size-vars.ts"
         },
         {
           "type": "registry:component",
@@ -146,11 +146,11 @@
         },
         {
           "type": "registry:component",
-          "path": "src/hooks/table/use-column-size-vars.ts"
+          "path": "src/components/data-table/hooks/use-column-size-vars.ts"
         },
         {
           "type": "registry:component",
-          "path": "src/hooks/table/use-column-resize.ts"
+          "path": "src/components/data-table/hooks/use-column-resize.ts"
         },
         {
           "type": "registry:component",
@@ -258,7 +258,7 @@
         },
         {
           "type": "registry:component",
-          "path": "src/lib/export.ts"
+          "path": "src/components/data-table/lib/export.ts"
         }
       ]
     },
@@ -295,13 +295,13 @@
         },
         {
           "type": "registry:file",
-          "target": "src/config/data-table.ts",
-          "path": "src/config/data-table.ts"
+          "target": "src/components/data-table/config.ts",
+          "path": "src/components/data-table/config.ts"
         },
         {
           "type": "registry:file",
-          "target": "src/types/data-table.ts",
-          "path": "src/types/data-table.ts"
+          "target": "src/components/data-table/types.ts",
+          "path": "src/components/data-table/types.ts"
         }
       ]
     },
@@ -364,7 +364,7 @@
         },
         {
           "type": "registry:lib",
-          "path": "src/lib/data-table.ts"
+          "path": "src/components/data-table/lib/data-table.ts"
         },
         {
           "type": "registry:lib",
@@ -376,17 +376,17 @@
         },
         {
           "type": "registry:lib",
-          "path": "src/lib/parsers.ts"
+          "path": "src/components/data-table/lib/parsers.ts"
         },
         {
           "type": "registry:file",
-          "target": "src/config/data-table.ts",
-          "path": "src/config/data-table.ts"
+          "target": "src/components/data-table/config.ts",
+          "path": "src/components/data-table/config.ts"
         },
         {
           "type": "registry:file",
-          "target": "src/types/data-table.ts",
-          "path": "src/types/data-table.ts"
+          "target": "src/components/data-table/types.ts",
+          "path": "src/components/data-table/types.ts"
         }
       ]
     },
@@ -435,7 +435,7 @@
         },
         {
           "type": "registry:lib",
-          "path": "src/lib/data-table.ts"
+          "path": "src/components/data-table/lib/data-table.ts"
         },
         {
           "type": "registry:lib",
@@ -447,17 +447,17 @@
         },
         {
           "type": "registry:lib",
-          "path": "src/lib/parsers.ts"
+          "path": "src/components/data-table/lib/parsers.ts"
         },
         {
           "type": "registry:file",
-          "target": "src/config/data-table.ts",
-          "path": "src/config/data-table.ts"
+          "target": "src/components/data-table/config.ts",
+          "path": "src/components/data-table/config.ts"
         },
         {
           "type": "registry:file",
-          "target": "src/types/data-table.ts",
-          "path": "src/types/data-table.ts"
+          "target": "src/components/data-table/types.ts",
+          "path": "src/components/data-table/types.ts"
         }
       ]
     },
@@ -640,7 +640,7 @@
         },
         {
           "type": "registry:component",
-          "path": "src/lib/table/column-size-vars.ts"
+          "path": "src/components/data-table/lib/column-size-vars.ts"
         },
         {
           "type": "registry:component",
@@ -660,11 +660,11 @@
         },
         {
           "type": "registry:component",
-          "path": "src/hooks/table/use-column-size-vars.ts"
+          "path": "src/components/data-table/hooks/use-column-size-vars.ts"
         },
         {
           "type": "registry:component",
-          "path": "src/hooks/table/use-column-resize.ts"
+          "path": "src/components/data-table/hooks/use-column-resize.ts"
         },
         {
           "type": "registry:component",

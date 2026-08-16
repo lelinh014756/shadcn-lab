@@ -15,7 +15,7 @@ import type {
   ExtendedColumnFilter,
   ExtendedColumnSort,
   JoinOperator,
-} from "@/types/data-table";
+} from "@/components/data-table/types";
 
 export function getRowValue<TData>(row: TData, id: string): unknown {
   return (row as Record<string, unknown>)[id];

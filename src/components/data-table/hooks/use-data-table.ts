@@ -26,13 +26,13 @@ import * as React from "react";
 
 import { useTableCore } from "@/hooks/table/use-table-core";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
-import { getSortingStateParser } from "@/lib/parsers";
-import type { ExtendedColumnSort, QueryKeys } from "@/types/data-table";
 import type {
   TableCoreOptions,
   TableCoreState,
   TableExtraState,
 } from "@/types/table";
+import { getSortingStateParser } from "../lib/parsers";
+import type { ExtendedColumnSort, QueryKeys } from "../types";
 
 const PAGE_KEY = "page";
 const PER_PAGE_KEY = "perPage";

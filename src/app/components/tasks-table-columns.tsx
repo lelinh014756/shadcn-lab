@@ -38,7 +38,7 @@ import {
   taskStatuses,
   updateTask,
 } from "@/mocks/tasks";
-import type { DataTableRowAction } from "@/types/data-table";
+import type { DataTableRowAction } from "@/components/data-table/types";
 
 interface GetTasksTableColumnsProps {
   statusCounts: Record<Task["status"], number>;

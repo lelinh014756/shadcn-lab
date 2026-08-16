@@ -55,6 +55,7 @@ export function DataTableHead<TData extends RowData>({
         // biệt head/body — ở đây chỉ còn lo phần định vị khi cuộn.
         enableStickyHeader && "sticky top-0 z-10",
         headProps?.className,
+        "bg-primary/10"
       )}
     >
       {table.getHeaderGroups().map((headerGroup) => (
@@ -84,7 +85,7 @@ export function DataTableHead<TData extends RowData>({
                     // Khớp nền của <thead> (bg-muted) — nếu để mặc định
                     // var(--background) thì ô ghim sẽ trắng lạc giữa header
                     // xám nhẹ.
-                    background: "var(--muted)",
+                    background: "initial",
                   }),
                   // Qua CSS var — xem useColumnSizeVars. Dùng --header- (không
                   // phải --col-) vì header có thể colSpan nhiều cột.
@@ -102,6 +103,7 @@ export function DataTableHead<TData extends RowData>({
                     !header.column.getIsPinned() &&
                     "border-e",
                   cellProps?.className,
+                  "backdrop-blur-3xl"
                 )}
               >
                 {header.isPlaceholder ? null : label ? (
@@ -110,6 +112,7 @@ export function DataTableHead<TData extends RowData>({
                     table={table}
                     label={label}
                     localization={localization}
+                    density={density}
                   />
                 ) : (
                   flexRender(

@@ -3,7 +3,7 @@
 import type { Table } from "@tanstack/react-table";
 import { Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { exportTableToCSV } from "@/lib/export";
+import { exportTableToCSV } from "@/components/data-table/lib/export";
 import type { Task } from "@/mocks/tasks";
 import { DISPLAY_COLUMN_IDS } from "@/types/table";
 

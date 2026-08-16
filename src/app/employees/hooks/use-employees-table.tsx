@@ -18,7 +18,7 @@ import type {
 import * as React from "react";
 
 import type { TableCoreInstance } from "@/hooks/table/use-table-core";
-import { useDataTable } from "@/hooks/use-data-table";
+import { useDataTable } from "@/components/data-table/hooks/use-data-table";
 import { formatDate } from "@/lib/format";
 
 /** dd/MM/yyyy — the long-form default overflows the 110px date columns. */
@@ -349,6 +349,14 @@ export function useEmployeesTable({
       columnPinning,
       columnSizing,
       showProgressBars: isLoading,
+      // Chỉ hiện skeleton lúc CHƯA có dòng nào để hiển thị (tải lần đầu, hoặc
+      // đổi bộ lọc ra kết quả rỗng đang chờ) — không dùng thẳng `isLoading`,
+      // vì cờ đó bật lại ở MỌI lần tải (đổi trang, gõ tìm kiếm...), trong khi
+      // `data` vẫn còn giữ trang cũ cho tới khi trang mới về. Nếu skeleton ăn
+      // theo `isLoading` thẳng, bảng sẽ nhấp nháy xoá sạch dòng đang có mỗi
+      // lần chuyển trang — đã có `showProgressBars` (thanh loading mỏng) lo
+      // phần đó rồi.
+      showSkeletons: isLoading && data.length === 0,
     },
     onColumnSizingChange,
     onColumnPinningChange,

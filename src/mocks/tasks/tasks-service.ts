@@ -4,13 +4,13 @@
  * `{ data, error }` result shape, so callers only change their import path.
  */
 
-import { simulateLatency } from "@/lib/mock/mock-latency";
-import { filterRows, paginateRows, sortRows } from "@/lib/mock/query-rows";
 import type {
   ExtendedColumnFilter,
   ExtendedColumnSort,
   JoinOperator,
-} from "@/types/data-table";
+} from "@/components/data-table/types";
+import { simulateLatency } from "@/lib/mock/mock-latency";
+import { filterRows, paginateRows, sortRows } from "@/lib/mock/query-rows";
 import {
   type Task,
   type TaskLabel,

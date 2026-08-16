@@ -20,8 +20,8 @@ import {
   ActionBarSeparator,
 } from "@/components/ui/action-bar";
 import type { TableCoreInstance } from "@/hooks/table/use-table-core";
-import { exportTableToCSV } from "@/lib/export";
 import { DISPLAY_COLUMN_ID_LIST } from "@/types/table";
+import { exportTableToCSV } from "../lib/export";
 
 interface DataTableActionBarProps<TData extends RowData> {
   table: TableCoreInstance<TData>;

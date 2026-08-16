@@ -29,7 +29,7 @@ import * as React from "react";
 import {
   type ColumnSizeVars,
   computeColumnSizeVars,
-} from "@/lib/table/column-size-vars";
+} from "../lib/column-size-vars";
 
 const CONTAINER_SELECTOR = '[data-slot="data-table-container"]';
 

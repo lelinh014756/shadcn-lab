@@ -6,9 +6,12 @@ import { DataTableSkeleton } from "@/components/data-table/data-table-skeleton";
 import { DataTableFilterList } from "@/components/data-table/menus/data-table-filter-list";
 import { DataTableFilterMenu } from "@/components/data-table/menus/data-table-filter-menu";
 import { DataTableSortList } from "@/components/data-table/menus/data-table-sort-list";
-import { useDataTable } from "@/hooks/use-data-table";
+import { useDataTable } from "@/components/data-table/hooks/use-data-table";
+import type {
+  DataTableRowAction,
+  QueryKeys,
+} from "@/components/data-table/types";
 import type { Task } from "@/mocks/tasks";
-import type { DataTableRowAction, QueryKeys } from "@/types/data-table";
 import { DISPLAY_COLUMN_IDS } from "@/types/table";
 import { useTasksData } from "../hooks/use-tasks-data";
 import { DeleteTasksDialog } from "./delete-tasks-dialog";

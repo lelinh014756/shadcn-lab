@@ -3,7 +3,7 @@
 import type { RowData, Table } from "@tanstack/react-table";
 import * as React from "react";
 
-import { computeColumnSizeVars } from "@/lib/table/column-size-vars";
+import { computeColumnSizeVars } from "../lib/column-size-vars";
 
 /**
  * Biến CSS cho hình học cột — kỹ thuật TanStack Table khuyến nghị để resize

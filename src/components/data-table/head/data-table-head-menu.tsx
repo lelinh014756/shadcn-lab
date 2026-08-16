@@ -33,14 +33,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getDensityHeadMenuInsetClass } from "@/lib/table/style-utils";
 import { cn } from "@/lib/utils";
-import type { TableLocalization } from "@/types/table";
+import type { Density, TableLocalization } from "@/types/table";
 
 interface DataTableHeadMenuProps<TData extends RowData> {
   header: Header<TData, unknown>;
   table: Table<TData>;
   label: string;
   localization: TableLocalization;
+  density: Density;
 }
 
 export function DataTableHeadMenu<TData extends RowData>({
@@ -48,6 +50,7 @@ export function DataTableHeadMenu<TData extends RowData>({
   table,
   label,
   localization,
+  density,
 }: DataTableHeadMenuProps<TData>) {
   const column = header.column;
   const isResizing = table.getState().columnSizingInfo.isResizingColumn;
@@ -90,7 +93,12 @@ export function DataTableHeadMenu<TData extends RowData>({
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger
         className={cn(
-          "-mx-2 flex size-full items-center justify-between gap-1.5 px-2 text-left hover:bg-accent/40 focus:outline-none data-[state=open]:bg-accent/40 [&_svg]:size-3.5",
+          // `absolute inset-0` phủ trọn <th> (vốn đã `position: relative` hoặc
+          // `sticky` từ getColumnPinningStyle, đủ làm containing block) — xem
+          // vì sao KHÔNG dùng flex+width:auto/100% ở chú thích
+          // `getDensityHeadMenuInsetClass`.
+          "absolute inset-0 flex items-center justify-between gap-1.5 text-left hover:bg-accent/40 focus:outline-none data-[state=open]:bg-accent/40 [&_svg]:size-3.5",
+          getDensityHeadMenuInsetClass(density),
           // Đang kéo resize thì chặn click, tránh mở menu ngoài ý muốn.
           isResizing && "pointer-events-none",
         )}

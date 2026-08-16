@@ -75,8 +75,14 @@ function TableHead({ className, ...props }: React.ComponentProps<"th">) {
   return (
     <th
       data-slot="table-head"
+      // Cố ý KHÔNG có `[&:has([role=checkbox])]:pr-0` (mặc định shadcn) — quy
+      // tắc đó triệt tiêu padding phải bất cứ khi nào ô chứa phần tử
+      // `role="checkbox"`, đè lên padding đối xứng mà `getDensityHeadClass`
+      // đã tính, khiến checkbox tổng (select-all) lệch hẳn sang trái. Cột
+      // chọn dòng ở đây tự lo canh giữa qua `TableSelectHeader`/
+      // `TableSelectHitbox`, không cần và không được cắt padding kiểu này.
       className={cn(
-        "h-10 whitespace-nowrap px-2 text-left align-middle font-medium text-foreground [&:has([role=checkbox])]:pr-0",
+        "h-10 whitespace-nowrap px-2 text-left align-middle font-medium text-foreground",
         className,
       )}
       {...props}
@@ -88,10 +94,8 @@ function TableCell({ className, ...props }: React.ComponentProps<"td">) {
   return (
     <td
       data-slot="table-cell"
-      className={cn(
-        "whitespace-nowrap p-2 align-middle [&:has([role=checkbox])]:pr-0",
-        className,
-      )}
+      // Xem chú thích ở TableHead — cùng lý do bỏ `[&:has([role=checkbox])]:pr-0`.
+      className={cn("whitespace-nowrap p-2 align-middle", className)}
       {...props}
     />
   );

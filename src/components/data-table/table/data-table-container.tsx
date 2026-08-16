@@ -7,7 +7,7 @@ import { DataTableFooter } from "@/components/data-table/footer/data-table-foote
 import { DataTableHead } from "@/components/data-table/head/data-table-head";
 import { TableProgressBar } from "@/components/table/table-progress-bar";
 import { Table } from "@/components/ui/table";
-import { useColumnSizeVars } from "@/hooks/table/use-column-size-vars";
+import { useColumnSizeVars } from "../hooks/use-column-size-vars";
 import type { TableCoreInstance } from "@/hooks/table/use-table-core";
 import { cn } from "@/lib/utils";
 import { resolveSlotProp } from "@/types/table";

@@ -41,7 +41,11 @@ function TableSelectHitbox({
       // click 2 lần vì lần đầu bị "ăn" bởi thay đổi state của việc chọn dòng.
       onClick={(event) => event.stopPropagation()}
       className={cn(
-        "group relative -my-1.5 h-[calc(100%+0.75rem)] py-1.5",
+        // `flex items-center justify-center`: số STT/checkbox canh giữa ô,
+        // khớp với checkbox tổng ở header (`TableSelectHeader` cũng
+        // `justify-center`) — trước đây không có, nên checkbox/số nằm lọt
+        // thỏm sát mép trái trong khi checkbox tổng ở giữa, nhìn lệch hàng.
+        "group relative -my-1.5 flex h-[calc(100%+0.75rem)] items-center justify-center py-1.5",
         size === "default" && "-ms-3 -me-2 ps-3 pe-2",
         size === "sm" && "-ms-3 -me-1.5 ps-3 pe-1.5",
         size === "lg" && "-mx-3 px-3",
@@ -82,7 +86,11 @@ function TableSelectCheckbox({
         <div
           aria-hidden="true"
           className={cn(
-            "pointer-events-none absolute start-3 top-1.5 flex size-4 items-center justify-center text-muted-foreground text-xs tabular-nums transition-opacity group-hover:opacity-0",
+            // `inset-0` (không phải toạ độ cố định `start-3 top-1.5`): số phải
+            // phủ trọn hitbox rồi tự canh giữa, để trùng khít vị trí checkbox
+            // (canh giữa qua flex của TableSelectHitbox) — swap qua lại lúc
+            // hover mới đúng chỗ, không nhảy vị trí.
+            "pointer-events-none absolute inset-0 flex items-center justify-center text-muted-foreground text-xs tabular-nums transition-opacity group-hover:opacity-0",
             checked && "opacity-0",
           )}
         >
@@ -222,7 +230,7 @@ function TableSelectCell<TData>({
 
   if (readOnly) {
     return (
-      <div className="flex items-center ps-1 text-muted-foreground text-xs tabular-nums">
+      <div className="flex items-center justify-center text-muted-foreground text-xs tabular-nums">
         {rowNumber ?? getRowNumber(row, table)}
       </div>
     );

@@ -18,7 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { exportTableToCSV } from "@/lib/export";
+import { exportTableToCSV } from "@/components/data-table/lib/export";
 import {
   deleteTasks,
   type Task,

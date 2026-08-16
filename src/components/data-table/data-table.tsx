@@ -48,7 +48,7 @@ export function DataTable<TData extends RowData>({
         {...paperProps}
         {...props}
         className={cn(
-          "flex w-full flex-col gap-2.5",
+          "flex w-full flex-col",
           isFullScreen &&
             "fixed inset-0 z-50 h-screen w-screen overflow-hidden bg-background p-4",
           paperProps?.className,

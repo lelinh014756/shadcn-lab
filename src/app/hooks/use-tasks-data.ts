@@ -18,7 +18,10 @@ import {
 } from "nuqs";
 import * as React from "react";
 
-import { getFiltersStateParser, getSortingStateParser } from "@/lib/parsers";
+import {
+  getFiltersStateParser,
+  getSortingStateParser,
+} from "@/components/data-table/lib/parsers";
 import {
   getEstimatedHoursRange,
   getTaskPriorityCounts,
