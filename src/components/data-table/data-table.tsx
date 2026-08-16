@@ -36,12 +36,8 @@ export function DataTable<TData extends RowData>({
   ...props
 }: DataTableProps<TData>) {
   const { isFullScreen } = table.getState();
-  const {
-    enableTopToolbar,
-    enableBottomToolbar,
-    renderTopToolbar,
-    slotProps,
-  } = table.options;
+  const { enableTopToolbar, enableBottomToolbar, renderTopToolbar, slotProps } =
+    table.options;
 
   const paperProps = resolveSlotProp(slotProps.paper, { table });
 

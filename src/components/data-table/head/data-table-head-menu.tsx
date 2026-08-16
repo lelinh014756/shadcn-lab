@@ -33,8 +33,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { TableLocalization } from "@/types/table";
 import { cn } from "@/lib/utils";
+import type { TableLocalization } from "@/types/table";
 
 interface DataTableHeadMenuProps<TData extends RowData> {
   header: Header<TData, unknown>;

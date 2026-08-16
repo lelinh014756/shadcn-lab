@@ -170,6 +170,30 @@
         },
         {
           "type": "registry:component",
+          "path": "src/components/ui/spinner.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/general/app-icon.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/general/app-button.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/data-display/app-tooltip.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/feedback/app-sheet.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/table/table-filters.tsx"
+        },
+        {
+          "type": "registry:component",
           "path": "src/components/data-table/table/data-table-container.tsx"
         },
         {
@@ -657,6 +681,30 @@
         {
           "type": "registry:component",
           "path": "src/components/table/table-provider.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/ui/spinner.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/general/app-icon.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/general/app-button.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/data-display/app-tooltip.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/feedback/app-sheet.tsx"
+        },
+        {
+          "type": "registry:component",
+          "path": "src/components/table/table-filters.tsx"
         },
         {
           "type": "registry:component",

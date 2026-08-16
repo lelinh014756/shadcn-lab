@@ -116,10 +116,7 @@ function DataTableRowImpl<TData extends RowData>({
 
   return (
     <>
-      <TableRow
-        data-state={isSelected ? "selected" : undefined}
-        {...rowProps}
-      >
+      <TableRow data-state={isSelected ? "selected" : undefined} {...rowProps}>
         {cells.map((cell, index) => {
           const cellProps = resolveSlotProp(slotProps.bodyCell, {
             table,

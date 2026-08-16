@@ -21,8 +21,7 @@ export function DataTableFooter<TData extends RowData>({
   table,
 }: DataTableFooterProps<TData>) {
   const { density } = table.getState();
-  const { enableColumnBorders, enableStickyFooter, slotProps } =
-    table.options;
+  const { enableColumnBorders, enableStickyFooter, slotProps } = table.options;
 
   const hasFooter = table
     .getVisibleLeafColumns()

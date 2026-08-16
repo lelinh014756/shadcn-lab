@@ -1,3 +1,9 @@
+// Primitive của action bar, re-export để nơi dùng tự lắp ghép item riêng.
+export {
+  ActionBarGroup,
+  ActionBarItem,
+  ActionBarSeparator,
+} from "@/components/ui/action-bar";
 export { DataTableBody } from "./body/data-table-body";
 export { DataTableDetailPanel } from "./body/data-table-detail-panel";
 export { DataTable } from "./data-table";
@@ -18,10 +24,3 @@ export { DataTableActionBar } from "./toolbar/data-table-action-bar";
 export { DataTableBottomToolbar } from "./toolbar/data-table-bottom-toolbar";
 export { DataTablePagination } from "./toolbar/data-table-pagination";
 export { DataTableTopToolbar } from "./toolbar/data-table-top-toolbar";
-
-// Primitive của action bar, re-export để nơi dùng tự lắp ghép item riêng.
-export {
-  ActionBarGroup,
-  ActionBarItem,
-  ActionBarSeparator,
-} from "@/components/ui/action-bar";

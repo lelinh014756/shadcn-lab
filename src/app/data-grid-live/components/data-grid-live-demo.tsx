@@ -6,12 +6,12 @@ import * as React from "react";
 import { use } from "react";
 import { toast } from "sonner";
 import { DataGrid } from "@/components/data-grid/data-grid";
-import { getTableSelectColumn } from "@/components/table/table-select-column";
 import { DataGridFilterMenu } from "@/components/data-grid/menus/data-grid-filter-menu";
 import { DataGridRowHeightMenu } from "@/components/data-grid/menus/data-grid-row-height-menu";
 import { DataGridSortMenu } from "@/components/data-grid/menus/data-grid-sort-menu";
 import { DataGridKeyboardShortcuts } from "@/components/data-grid/modals/data-grid-keyboard-shortcuts";
 import { TableColumnVisibilityMenu } from "@/components/table/table-column-visibility-menu";
+import { getTableSelectColumn } from "@/components/table/table-select-column";
 import {
   type UseDataGridProps,
   useDataGrid,

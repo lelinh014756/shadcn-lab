@@ -18,10 +18,10 @@
  * chiều cao panel. Content tự quyết có scroll hay không.
  */
 
+import type { LucideIcon } from "lucide-react";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import type { LucideIcon } from "lucide-react";
 
 export type DetailTab<T extends string = string> = {
   id: T;
@@ -75,14 +75,14 @@ export function DetailPanelTabs<T extends string>({
     <Tabs
       value={activeTab}
       onValueChange={(v) => setActiveTab(v as T)}
-      className={cn("flex min-h-0 flex-1 flex-col bg-shell-content ", className)}
+      className={cn("flex min-h-0 flex-1 flex-col bg-shell-content", className)}
     >
       {/* ===== Tab list với scroll + gradient fade ===== */}
       <div className="relative shrink-0">
         <div
           aria-hidden
           className={cn(
-            "pointer-events-none absolute bottom-0 left-0 top-0 z-10 w-8",
+            "pointer-events-none absolute top-0 bottom-0 left-0 z-10 w-8",
             "bg-gradient-to-r via-background/80 to-transparent",
             fadeFrom,
             "transition-opacity duration-150",
@@ -92,7 +92,7 @@ export function DetailPanelTabs<T extends string>({
         <div
           aria-hidden
           className={cn(
-            "pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-8",
+            "pointer-events-none absolute top-0 right-0 bottom-0 z-10 w-8",
             "bg-gradient-to-l via-background/80 to-transparent",
             fadeFrom,
             "transition-opacity duration-150",
@@ -125,11 +125,11 @@ export function DetailPanelTabs<T extends string>({
                 <TabsTrigger
                   value={tab.id}
                   className={cn(
-                    "group/tab relative h-8 shrink-0 rounded-none px-3 order-b flex-none",
+                    "group/tab relative order-b h-8 flex-none shrink-0 rounded-none px-3",
                     "inline-flex items-center gap-1.5",
                     "bg-transparent! shadow-none!",
                     "data-active:border-border data-active:bg-shell-content!",
-                    "data-active:-mb-px data-active:z-10 data-active:rounded-t-sm data-active:rounded-b-none data-active:border-b-0!",
+                    "data-active:z-10 data-active:-mb-px data-active:rounded-t-sm data-active:rounded-b-none data-active:border-b-0!",
                   )}
                 >
                   <Icon
@@ -141,7 +141,9 @@ export function DetailPanelTabs<T extends string>({
                   <span
                     className={cn(
                       "whitespace-nowrap text-xs transition-colors",
-                      isActive ? "font-medium text-foreground" : "text-muted-foreground",
+                      isActive
+                        ? "font-medium text-foreground"
+                        : "text-muted-foreground",
                     )}
                   >
                     {tab.label}
@@ -150,7 +152,7 @@ export function DetailPanelTabs<T extends string>({
               </Fragment>
             );
           })}
-          <span className="absolute left-0 right-0 bottom-0 border-b"></span>
+          <span className="absolute right-0 bottom-0 left-0 border-b"></span>
         </TabsList>
       </div>
 

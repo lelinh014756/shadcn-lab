@@ -12,7 +12,7 @@
  * Filters and the selected row live in the URL so the whole view is shareable.
  */
 
-import { Filter, RefreshCw, UserPlus } from "lucide-react";
+import { RefreshCw, UserPlus } from "lucide-react";
 import {
   parseAsBoolean,
   parseAsInteger,
@@ -22,27 +22,28 @@ import {
 import * as React from "react";
 
 import { DataTable } from "@/components/data-table/data-table";
+import {
+  AppToolBar,
+  AppToolBarActions,
+  AppToolBarFilters,
+} from "@/components/layouts/app-toolbar";
+import { MasterDetailLayout } from "@/components/layouts/master-detail-layout/master-detail-layout";
+import { TableFullscreenToggle } from "@/components/table";
 import { TableSettings } from "@/components/table/settings";
+import { TableFilters } from "@/components/table/table-filters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useTableSettings } from "@/hooks/table/use-table-settings";
-import {
-  departments,
-  type Employee,
-  organizations,
-  staffStatuses,
-} from "@/mocks/employees";
-
+import type { Employee } from "@/mocks/employees";
 import { EmployeesActionBar } from "../components/employees-action-bar";
 import { EmployeesDetailPanel } from "../components/employees-detail-panel";
+import {
+  EMPLOYEES_FILTER_FORM_ID,
+  EMPLOYEES_FILTER_KEYS,
+  EmployeesFilterForm,
+  type EmployeesFilterValues,
+} from "../components/employees-filter-form";
 import { useEmployeesListData } from "../hooks/use-employees-list-data";
 import { useEmployeesTable } from "../hooks/use-employees-table";
 import {
@@ -55,11 +56,7 @@ import {
   parseEmployeesColumnVisibility,
   reconcileEmployeesTableSettings,
 } from "../lib/employees-table-settings";
-import { TableFullscreenToggle } from "@/components/table";
-import { MasterDetailLayout } from "@/components/layouts/master-detail-layout/master-detail-layout";
-import { AppToolBar, AppToolBarActions, AppToolBarFilters } from "@/components/layouts/app-toolbar";
 
-const ALL = "all";
 const INFINITE_SCROLL_THRESHOLD_PX = 400;
 
 export function EmployeesListScreen() {
@@ -109,7 +106,6 @@ export function EmployeesListScreen() {
     [list.items, search.selected],
   );
 
-
   // ── Infinite scroll ────────────────────────────────────────────────────────
   const containerRef = React.useRef<HTMLDivElement>(null);
 
@@ -135,6 +131,20 @@ export function EmployeesListScreen() {
     return () => element.removeEventListener("scroll", onScroll);
   }, [enableInfinite, list]);
 
+  // ── Filters ────────────────────────────────────────────────────────────────
+  const activeFilterCount = React.useMemo(
+    () => EMPLOYEES_FILTER_KEYS.filter((key) => search[key] != null).length,
+    [search],
+  );
+
+  const onApplyFilters = React.useCallback(
+    (values: EmployeesFilterValues) => {
+      // Đổi bộ lọc thì luôn về trang 1, nếu không trang hiện tại có thể vượt
+      // quá số trang của tập kết quả mới.
+      void setSearch({ ...values, page: 1 });
+    },
+    [setSearch],
+  );
 
   // ── Table ──────────────────────────────────────────────────────────────────
   const onColumnSizingChange = React.useCallback(
@@ -215,62 +225,77 @@ export function EmployeesListScreen() {
     () => (
       <AppToolBar>
         <AppToolBarFilters>
+          <Input
+            placeholder="Tìm mã, tên, email, SĐT..."
+            defaultValue={search.q}
+            onChange={(event) =>
+              void setSearch({ q: event.target.value, page: 1 })
+            }
+            className="h-8 w-56"
+          />
 
-        <Input
-          placeholder="Tìm mã, tên, email, SĐT..."
-          defaultValue={search.q}
-          onChange={(event) =>
-            void setSearch({ q: event.target.value, page: 1 })
-          }
-          className="h-8 w-56"
-        />
-                <Button
-          aria-label="Bộ lọc"
-          variant="outline"
-          size="icon"
-          className="size-8"
-        >
-          <Filter />
-        </Button>
-
+          <TableFilters
+            formId={EMPLOYEES_FILTER_FORM_ID}
+            activeCount={activeFilterCount}
+            onApply={onApplyFilters}
+            disabled={list.isLoading}
+          >
+            <EmployeesFilterForm
+              defaultValues={{
+                org: search.org,
+                dept: search.dept,
+                status: search.status,
+                active: search.active,
+              }}
+            />
+          </TableFilters>
         </AppToolBarFilters>
 
-      <AppToolBarActions>
+        <AppToolBarActions>
+          <Button
+            aria-label="Tải lại"
+            variant="outline"
+            size="icon"
+            className="size-8"
+            onClick={list.refetch}
+          >
+            <RefreshCw
+              className={list.isLoading ? "animate-spin" : undefined}
+            />
+          </Button>
 
-        <Button
-          aria-label="Tải lại"
-          variant="outline"
-          size="icon"
-          className="size-8"
-          onClick={list.refetch}
-        >
-          <RefreshCw className={list.isLoading ? "animate-spin" : undefined} />
-        </Button>
+          <TableSettings
+            settings={settings}
+            columns={layoutColumns}
+            defaults={defaultEmployeesTableSettings}
+            showInfiniteScrollSwitch
+            onBeforeApply={(draft, applied) => {
+              if (draft.enableInfiniteScroll !== applied.enableInfiniteScroll) {
+                void setSearch({ page: 1 });
+              }
+            }}
+          />
+          <TableFullscreenToggle table={table} />
 
-        <TableSettings
-          settings={settings}
-          columns={layoutColumns}
-          defaults={defaultEmployeesTableSettings}
-          showInfiniteScrollSwitch
-          onBeforeApply={(draft, applied) => {
-            if (draft.enableInfiniteScroll !== applied.enableInfiniteScroll) {
-              void setSearch({ page: 1 });
-            }
-          }}
-        />
-        <TableFullscreenToggle table={table} />
-
-        <Button onClick={() => window.alert("Demo: thêm nhân viên")}>
-          <UserPlus />
-          Thêm nhân viên
-        </Button>
-</AppToolBarActions>
+          <Button onClick={() => window.alert("Demo: thêm nhân viên")}>
+            <UserPlus />
+            Thêm nhân viên
+          </Button>
+        </AppToolBarActions>
       </AppToolBar>
     ),
-    [layoutColumns, list, search.q, setSearch, settings, table],
+    [
+      activeFilterCount,
+      layoutColumns,
+      list,
+      onApplyFilters,
+      search,
+      setSearch,
+      settings,
+      table,
+    ],
   );
   renderTopToolbarRef.current = renderTopToolbar;
-
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col p-4">
@@ -298,33 +323,5 @@ export function EmployeesListScreen() {
         )}
       />
     </div>
-  );
-}
-
-interface FilterSelectProps {
-  label: string;
-  value: number | null;
-  options: { id: number; name: string }[];
-  onChange: (value: number | null) => void;
-}
-
-function FilterSelect({ label, value, options, onChange }: FilterSelectProps) {
-  return (
-    <Select
-      value={value != null ? String(value) : ALL}
-      onValueChange={(next) => onChange(next === ALL ? null : Number(next))}
-    >
-      <SelectTrigger className="h-8 w-40 data-size:h-8" aria-label={label}>
-        <SelectValue placeholder={label} />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectItem value={ALL}>{label}: tất cả</SelectItem>
-        {options.map((option) => (
-          <SelectItem key={option.id} value={String(option.id)}>
-            {option.name}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
   );
 }

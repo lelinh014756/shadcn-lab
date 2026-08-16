@@ -266,7 +266,9 @@ export function getTableSelectColumn<TData>({
 }: GetTableSelectColumnOptions<TData> = {}): ColumnDef<TData> {
   return {
     id,
-    header: ({ table }) => <TableSelectHeader table={table} readOnly={readOnly} />,
+    header: ({ table }) => (
+      <TableSelectHeader table={table} readOnly={readOnly} />
+    ),
     cell: ({ row, table }) => (
       <TableSelectCell
         row={row}

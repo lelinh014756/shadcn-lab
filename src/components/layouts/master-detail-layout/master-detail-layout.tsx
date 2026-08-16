@@ -12,13 +12,13 @@
  */
 
 import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { type PanelSize, usePanelRef } from "react-resizable-panels";
 import {
-  ResizablePanelGroup,
-  ResizablePanel,
   ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { cn } from "@/lib/utils";
-import { usePanelRef, type PanelSize } from "react-resizable-panels";
 
 /** Chiều cao panel detail khi thu gọn — khớp header DetailPanelShell (~32px). */
 const DEFAULT_COLLAPSED_DETAIL_HEADER_PX = 32;
@@ -77,7 +77,9 @@ export function MasterDetailLayout({
     const groupHeight = groupElementRef.current?.clientHeight ?? 0;
     if (groupHeight > 0) {
       const detailShare = (100 - defaultMasterSize) / 100;
-      defaultDetailExpandedPxRef.current = Math.round(groupHeight * detailShare);
+      defaultDetailExpandedPxRef.current = Math.round(
+        groupHeight * detailShare,
+      );
       return defaultDetailExpandedPxRef.current;
     }
 
@@ -109,7 +111,8 @@ export function MasterDetailLayout({
     const panel = detailRef.current;
     if (!panel) return;
 
-    const restorePx = savedDetailExpandedPxRef.current ?? resolveDefaultExpandedPx();
+    const restorePx =
+      savedDetailExpandedPxRef.current ?? resolveDefaultExpandedPx();
     panel.resize(restorePx);
     syncCollapsedState(false);
   }, [detailRef, resolveDefaultExpandedPx, syncCollapsedState]);
@@ -160,13 +163,19 @@ export function MasterDetailLayout({
   }, [collapseToHeader, collapsedDetailHeaderPx, detailRef, expandFromHeader]);
 
   const handleDetailResize = useCallback(
-    (panelSize: PanelSize, _id: string | number | undefined, _prevPanelSize: PanelSize | undefined) => {
+    (
+      panelSize: PanelSize,
+      _id: string | number | undefined,
+      _prevPanelSize: PanelSize | undefined,
+    ) => {
       if (!isPanelCollapsed(panelSize, collapsedDetailHeaderPx)) {
         defaultDetailExpandedPxRef.current = panelSize.inPixels;
       }
 
       const collapsed = isPanelCollapsed(panelSize, collapsedDetailHeaderPx);
-      setIsCollapsed((current) => (current === collapsed ? current : collapsed));
+      setIsCollapsed((current) =>
+        current === collapsed ? current : collapsed,
+      );
     },
     [collapsedDetailHeaderPx],
   );
@@ -181,7 +190,10 @@ export function MasterDetailLayout({
         {masterPanel}
       </ResizablePanel>
 
-      <ResizableHandle className="py-0.5 bg-shell-content border-border border-y-[1px]" withHandle />
+      <ResizableHandle
+        className="border-border border-y-[1px] bg-shell-content py-0.5"
+        withHandle
+      />
 
       <ResizablePanel
         panelRef={detailRef}

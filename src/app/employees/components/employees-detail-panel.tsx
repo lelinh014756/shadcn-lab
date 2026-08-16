@@ -30,7 +30,6 @@ export function EmployeesDetailPanel({
         <p className="truncate font-medium text-sm">
           {isCollapsed ? "" : (employee?.fullName ?? "Chi tiết nhân viên")}
         </p>
-      
       </div>
 
       {!isCollapsed && (

@@ -51,7 +51,7 @@ export function DataTableContainer<TData extends RowData>({
         // `min-h-0 flex-1` makes this the scroll region inside the paper's flex
         // column; without it the container grows to content height and the page
         // scrolls instead, which breaks sticky headers and infinite scroll.
-        "relative min-h-0 flex-1 h-full flex flex-col rounded-md border",
+        "relative flex h-full min-h-0 flex-1 flex-col rounded-md border",
         containerProps?.className,
       )}
     >

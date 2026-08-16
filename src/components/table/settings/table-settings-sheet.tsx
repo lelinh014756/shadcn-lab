@@ -1,17 +1,9 @@
 "use client";
 
 import * as React from "react";
-
+import { AppSheet } from "@/components/feedback/app-sheet";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import type { TableSettingsHandle } from "@/hooks/table/use-table-settings";
 import { cn } from "@/lib/utils";
 
@@ -78,72 +70,71 @@ export function TableSettingsSheet<TSettings extends BaseTableSettings>({
   }, [onBeforeApply, onOpenChange, settings]);
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
-        side="right"
-        className="flex w-full flex-col gap-0 p-0 sm:max-w-xl"
-      >
-        <SheetHeader className="border-b">
-          <SheetTitle>{labels.title}</SheetTitle>
-          <SheetDescription className="sr-only">
-            {labels.columnLayout}
-          </SheetDescription>
-        </SheetHeader>
-
-        <div className="flex flex-1 flex-col gap-5 overflow-y-auto p-4">
-          <section className="flex flex-col gap-2">
-            <p className="font-medium text-sm">{labels.behavior}</p>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-              <SettingsSwitchRow
-                label={labels.multiRowSelection}
-                checked={draft.showMultiRowSelection}
-                onCheckedChange={(checked) =>
-                  patchDraft({
-                    showMultiRowSelection: checked,
-                  } as Partial<TSettings>)
-                }
-              />
-              <SettingsSwitchRow
-                label={labels.summaryFooter}
-                checked={draft.showSummaryFooter}
-                onCheckedChange={(checked) =>
-                  patchDraft({
-                    showSummaryFooter: checked,
-                  } as Partial<TSettings>)
-                }
-              />
-              {showInfiniteScrollSwitch && (
-                <SettingsSwitchRow
-                  label={labels.infiniteScroll}
-                  checked={draft.enableInfiniteScroll}
-                  onCheckedChange={(checked) =>
-                    patchDraft({
-                      enableInfiniteScroll: checked,
-                    } as Partial<TSettings>)
-                  }
-                />
-              )}
-            </div>
-          </section>
-
-          <TableSettingsColumnList
-            columns={columns}
-            settings={draft}
-            labels={labels}
-            onChange={(patch) => patchDraft(patch as Partial<TSettings>)}
-            onReset={onResetLayout}
-            hasCustomLayout={hasCustomLayout}
-          />
-        </div>
-
-        <SheetFooter className="flex-row justify-end gap-2 border-t">
+    <AppSheet
+      open={open}
+      onOpenChange={onOpenChange}
+      title={labels.title}
+      description={labels.columnLayout}
+      // `wide` của AppSheet là 42rem, rộng hơn 36rem mà sheet này vẫn dùng.
+      // Ghim lại đúng bề rộng cũ để việc đổi sang AppSheet không kéo theo thay
+      // đổi layout ngoài ý muốn. Cần cả biến thể `data-[side=right]:` vì
+      // `ui/sheet` đặt sẵn selector đó, không đè thì nó thắng.
+      variant="wide"
+      className="sm:max-w-xl data-[side=right]:sm:max-w-xl"
+      bodyClassName="flex flex-col gap-5 p-4"
+      footer={
+        <>
           <Button variant="outline" onClick={settings.clear}>
             {labels.clear}
           </Button>
           <Button onClick={onApply}>{labels.apply}</Button>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+        </>
+      }
+    >
+      <section className="flex flex-col gap-2">
+        <p className="font-medium text-sm">{labels.behavior}</p>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+          <SettingsSwitchRow
+            label={labels.multiRowSelection}
+            checked={draft.showMultiRowSelection}
+            onCheckedChange={(checked) =>
+              patchDraft({
+                showMultiRowSelection: checked,
+              } as Partial<TSettings>)
+            }
+          />
+          <SettingsSwitchRow
+            label={labels.summaryFooter}
+            checked={draft.showSummaryFooter}
+            onCheckedChange={(checked) =>
+              patchDraft({
+                showSummaryFooter: checked,
+              } as Partial<TSettings>)
+            }
+          />
+          {showInfiniteScrollSwitch && (
+            <SettingsSwitchRow
+              label={labels.infiniteScroll}
+              checked={draft.enableInfiniteScroll}
+              onCheckedChange={(checked) =>
+                patchDraft({
+                  enableInfiniteScroll: checked,
+                } as Partial<TSettings>)
+              }
+            />
+          )}
+        </div>
+      </section>
+
+      <TableSettingsColumnList
+        columns={columns}
+        settings={draft}
+        labels={labels}
+        onChange={(patch) => patchDraft(patch as Partial<TSettings>)}
+        onReset={onResetLayout}
+        hasCustomLayout={hasCustomLayout}
+      />
+    </AppSheet>
   );
 }
 
