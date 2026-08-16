@@ -42,6 +42,15 @@ interface DataGridRowProps<TData> extends React.ComponentProps<"div"> {
   readOnly: boolean;
   stretchColumns: boolean;
   adjustLayout: boolean;
+  /**
+   * Cha chụp `row.getIsSelected()` tại thời điểm render.
+   *
+   * Không gọi getter trong comparator: getter đọc state HIỆN TẠI của table
+   * instance (instance ổn định qua các lần render), nên `prev.row.getX()` và
+   * `next.row.getX()` luôn trả cùng giá trị — không có "giá trị cũ" để so, và
+   * hàng sẽ không bao giờ re-render khi chọn/bỏ chọn.
+   */
+  isSelected: boolean;
 }
 
 export const DataGridRow = React.memo(DataGridRowImpl, (prev, next) => {
@@ -144,6 +153,11 @@ export const DataGridRow = React.memo(DataGridRowImpl, (prev, next) => {
     return false;
   }
 
+  // Snapshot do cha chụp, KHÔNG phải getter — xem chú thích ở `isSelected`.
+  if (prev.isSelected !== next.isSelected) {
+    return false;
+  }
+
   // Skip re-render - props are equal
   return true;
 }) as typeof DataGridRowImpl;
@@ -166,6 +180,7 @@ function DataGridRowImpl<TData>({
   readOnly,
   stretchColumns,
   adjustLayout,
+  isSelected: isRowSelected,
   className,
   style,
   ref,
@@ -188,8 +203,6 @@ function DataGridRowImpl<TData>({
   );
 
   const rowRef = useComposedRefs(ref, onRowChange);
-
-  const isRowSelected = row.getIsSelected();
 
   // Memoize visible cells to avoid recreating cell array on every render
   // Though TanStack returns new Cell wrappers, memoizing the array helps React's reconciliation

@@ -245,6 +245,9 @@ export function DataGrid<TData>({
                 adjustLayout={adjustLayout}
                 stretchColumns={stretchColumns}
                 readOnly={readOnly}
+                // Chụp tại đây để comparator của DataGridRow có giá trị cũ/mới
+                // thật sự mà so — gọi getter trong comparator là vô nghĩa.
+                isSelected={row.getIsSelected()}
               />
             );
           })}

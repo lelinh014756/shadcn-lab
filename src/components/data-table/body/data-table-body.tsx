@@ -57,6 +57,11 @@ export function DataTableBody<TData extends RowData>({
           columnPinning={columnPinning}
           columnOrder={columnOrder}
           enableColumnBorders={enableColumnBorders}
+          // Chụp tại đây, ở mỗi lần render, để `DataTableRow` có giá trị cũ/mới
+          // thật sự mà so. Gọi getter bên trong comparator là vô nghĩa — xem
+          // chú thích đầu data-table-row.tsx.
+          isSelected={row.getIsSelected()}
+          isExpanded={row.getIsExpanded()}
         />
       ))}
     </TableBody>

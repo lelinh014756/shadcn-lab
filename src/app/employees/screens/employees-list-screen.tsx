@@ -57,6 +57,7 @@ import {
 } from "../lib/employees-table-settings";
 import { TableFullscreenToggle } from "@/components/table";
 import { MasterDetailLayout } from "@/components/layouts/master-detail-layout/master-detail-layout";
+import { AppToolBar, AppToolBarActions, AppToolBarFilters } from "@/components/layouts/app-toolbar";
 
 const ALL = "all";
 const INFINITE_SCROLL_THRESHOLD_PX = 400;
@@ -212,7 +213,9 @@ export function EmployeesListScreen() {
   // bộ lọc và các nút thao tác.
   const renderTopToolbar = React.useCallback(
     () => (
-      <header className="flex flex-wrap items-center justify-end gap-2 p-1">
+      <AppToolBar>
+        <AppToolBarFilters>
+
         <Input
           placeholder="Tìm mã, tên, email, SĐT..."
           defaultValue={search.q}
@@ -221,8 +224,7 @@ export function EmployeesListScreen() {
           }
           className="h-8 w-56"
         />
-
-        <Button
+                <Button
           aria-label="Bộ lọc"
           variant="outline"
           size="icon"
@@ -230,6 +232,10 @@ export function EmployeesListScreen() {
         >
           <Filter />
         </Button>
+
+        </AppToolBarFilters>
+
+      <AppToolBarActions>
 
         <Button
           aria-label="Tải lại"
@@ -258,7 +264,8 @@ export function EmployeesListScreen() {
           <UserPlus />
           Thêm nhân viên
         </Button>
-      </header>
+</AppToolBarActions>
+      </AppToolBar>
     ),
     [layoutColumns, list, search.q, setSearch, settings, table],
   );
@@ -267,7 +274,10 @@ export function EmployeesListScreen() {
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] flex-col p-4">
-      {settings.isHydrated ? (
+      <MasterDetailLayout
+        masterPanel={
+          <div className="h-full min-h-0 flex-1">
+            {settings.isHydrated ? (
               <DataTable
                 table={table}
                 ref={containerRef}
@@ -277,6 +287,16 @@ export function EmployeesListScreen() {
             ) : (
               <Skeleton className="h-full w-full" />
             )}
+          </div>
+        }
+        detailPanel={(controls) => (
+          <EmployeesDetailPanel
+            employee={activeEmployee}
+            isCollapsed={controls.isCollapsed}
+            onToggle={controls.onToggle}
+          />
+        )}
+      />
     </div>
   );
 }

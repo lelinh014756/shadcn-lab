@@ -1,25 +1,31 @@
 "use client";
 
 /**
- * Một hàng dữ liệu, tách riêng và bọc `React.memo` để resize cột mượt.
+ * Một hàng dữ liệu, tách riêng và bọc `React.memo`.
  *
- * Vấn đề trước khi tách: `columnSizing` đổi khi kéo resize → `table` (từ
- * `useReactTable`) đổi reference → nếu hàng được render trực tiếp trong
- * `DataTableBody.map()`, TOÀN BỘ hàng re-render mỗi khung hình khi kéo — với
- * 20 hàng × ~19 cột là ~380 lần gọi lại renderer từng cell (badge, format
- * ngày...) MỖI LẦN chuột nhích 1px, đủ để giật hình.
+ * ⚠️ QUY TẮC BẮT BUỘC KHI SỬA COMPARATOR Ở CUỐI FILE ⚠️
  *
- * Vì width giờ đi qua CSS var (xem `useColumnSizeVars`), nội dung hàng không
- * còn phụ thuộc `columnSizing`/`columnSizingInfo` nữa. Comparator dưới đây CỐ
- * TÌNH không so sánh 2 state đó — resize không kích hoạt re-render hàng, chỉ
- * những thay đổi thực sự ảnh hưởng hiển thị (chọn dòng, mở rộng, ẩn/hiện cột,
- * ghim, thứ tự cột, mật độ, class/onClick của hàng) mới cho re-render.
+ * Không bao giờ so sánh bằng cách gọi getter của TanStack (`row.getIsSelected()`,
+ * `row.getIsExpanded()`, `column.getSize()`...). Những getter đó đọc state HIỆN
+ * TẠI của table instance — mà instance thì ổn định qua các lần render — nên
+ * `prev.row.getX()` và `next.row.getX()` luôn trả về CÙNG một giá trị. Không có
+ * "giá trị cũ" nào để so, phép so luôn bằng nhau, và hàng sẽ không bao giờ
+ * re-render dù state đã đổi.
+ *
+ * Muốn so cái gì thì cha phải chụp lại (snapshot) thành prop nguyên thuỷ tại
+ * thời điểm render — xem `isSelected` / `isExpanded` bên dưới. Khi đó `prev` giữ
+ * giá trị của lần render trước, `next` giữ giá trị lần này, và phép so mới có
+ * nghĩa.
+ *
+ * Vì sao có memo: `columnSizing` đổi khi kéo resize làm cả cây re-render. Width
+ * đã đi qua CSS var (xem `useColumnSizeVars`) nên nội dung hàng không phụ thuộc
+ * `columnSizing`/`columnSizingInfo` — comparator cố tình bỏ qua hai state đó.
  */
 
 import {
-  flexRender,
   type ColumnOrderState,
   type ColumnPinningState,
+  flexRender,
   type Row,
   type RowData,
   type VisibilityState,
@@ -51,6 +57,10 @@ interface DataTableRowProps<TData extends RowData> {
   columnPinning: ColumnPinningState;
   columnOrder: ColumnOrderState;
   enableColumnBorders: boolean;
+  /** Cha chụp `row.getIsSelected()` — xem chú thích đầu file, đừng gọi getter. */
+  isSelected: boolean;
+  /** Cha chụp `row.getIsExpanded()` — xem chú thích đầu file, đừng gọi getter. */
+  isExpanded: boolean;
 }
 
 /**
@@ -93,6 +103,8 @@ function DataTableRowImpl<TData extends RowData>({
   columnPinning,
   columnOrder,
   enableColumnBorders,
+  isSelected,
+  isExpanded,
 }: DataTableRowProps<TData>) {
   const { renderDetailPanel } = table.options;
 
@@ -105,7 +117,7 @@ function DataTableRowImpl<TData extends RowData>({
   return (
     <>
       <TableRow
-        data-state={row.getIsSelected() ? "selected" : undefined}
+        data-state={isSelected ? "selected" : undefined}
         {...rowProps}
       >
         {cells.map((cell, index) => {
@@ -148,7 +160,7 @@ function DataTableRowImpl<TData extends RowData>({
           );
         })}
       </TableRow>
-      {renderDetailPanel && row.getIsExpanded() && (
+      {renderDetailPanel && isExpanded && (
         <DataTableDetailPanel table={table} row={row} />
       )}
     </>
@@ -158,8 +170,9 @@ function DataTableRowImpl<TData extends RowData>({
 export const DataTableRow = React.memo(DataTableRowImpl, (prev, next) => {
   if (prev.row.id !== next.row.id) return false;
   if (prev.row.original !== next.row.original) return false;
-  if (prev.row.getIsSelected() !== next.row.getIsSelected()) return false;
-  if (prev.row.getIsExpanded() !== next.row.getIsExpanded()) return false;
+  // Snapshot do cha chụp, KHÔNG phải getter — xem chú thích đầu file.
+  if (prev.isSelected !== next.isSelected) return false;
+  if (prev.isExpanded !== next.isExpanded) return false;
   if (prev.density !== next.density) return false;
   if (prev.columnVisibility !== next.columnVisibility) return false;
   if (prev.columnPinning !== next.columnPinning) return false;

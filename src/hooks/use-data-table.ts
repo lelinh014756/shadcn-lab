@@ -131,6 +131,26 @@ export function useDataTable<TData>(props: UseDataTableProps<TData>) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>(initialState?.columnVisibility ?? {});
 
+  // `enableRowSelection` thường được bind vào một switch trong "Cấu hình bảng"
+  // (vd `showMultiRowSelection`). TanStack không tự dọn `rowSelection` khi cờ
+  // này chuyển sang `false` — nó chỉ chặn thao tác chọn MỚI, còn state cũ (và
+  // mọi thứ đọc từ `getFilteredSelectedRowModel()`, như action bar) vẫn thấy
+  // các dòng đã chọn trước đó. Hệ quả thực tế: tắt "Chọn nhiều dòng" xong, ô
+  // chọn biến mất nhưng action bar vẫn nổi lên với các dòng chọn cũ, và nút
+  // Xoá/Ngưng hoạt động trên đó vẫn hoạt động bình thường dù người dùng không
+  // còn thấy cách nào đã chọn chúng.
+  //
+  // Chỉ xử lý khi `enableRowSelection` là boolean `false` (tắt toàn bảng) —
+  // dạng hàm `(row) => boolean` chọn theo từng dòng, không có nghĩa "tắt hết"
+  // nên không đụng vào.
+  const resolvedOnRowSelectionChange =
+    tableProps.onRowSelectionChange ?? setRowSelection;
+  React.useEffect(() => {
+    if (tableProps.enableRowSelection !== false) return;
+    resolvedOnRowSelectionChange({});
+    // biome-ignore lint/correctness/useExhaustiveDependencies: chỉ cần chạy lại khi cờ bật/tắt đổi — đưa `resolvedOnRowSelectionChange` vào deps sẽ chạy lại mỗi render vì nó là giá trị mới (fallback `setRowSelection` ổn định, nhưng override từ caller có thể không).
+  }, [tableProps.enableRowSelection]);
+
   const [page, setPage] = useQueryState(
     pageKey,
     parseAsInteger.withOptions(queryStateOptions).withDefault(1),
