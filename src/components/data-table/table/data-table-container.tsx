@@ -39,12 +39,37 @@ export function DataTableContainer<TData extends RowData>({
     (pinning.left?.length ?? 0) > 1 ||
     (pinning.right?.length ?? 0) > 1;
 
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  // `table-layout: fixed` khoá bảng ở đúng tổng size khai báo, nên khi tổng đó
+  // hụt so với khung (màn rộng, ẩn bớt cột, bật toàn màn hình) sẽ lòi ra mảng
+  // trắng bên phải. Đo khung để `computeColumnSizeVars` giãn cột cho vừa.
+  // Chỉ đo khi đang ở chế độ fixed — layout tự nhiên vốn đã `w-full`.
+  const [availableWidth, setAvailableWidth] = React.useState(0);
+  React.useLayoutEffect(() => {
+    if (!hasExplicitSizing) {
+      setAvailableWidth(0);
+      return;
+    }
+
+    const scroller = containerRef.current?.querySelector<HTMLElement>(
+      '[data-slot="table-container"]',
+    );
+    if (!scroller) return;
+
+    const observer = new ResizeObserver(([entry]) => {
+      // `contentRect` đã trừ thanh cuộn dọc — dùng `offsetWidth` sẽ giãn dư ra
+      // đúng bằng bề rộng thanh cuộn và sinh thêm cuộn ngang thừa.
+      if (entry) setAvailableWidth(entry.contentRect.width);
+    });
+    observer.observe(scroller);
+    return () => observer.disconnect();
+  }, [hasExplicitSizing]);
+
   // Gán MỘT LẦN lên container — mỗi cell tham chiếu qua calc(var(...)) nên
   // trình duyệt tự cascade width khi resize, không cần React patch từng cell.
   // Xem chú thích trong useColumnSizeVars để biết lý do.
-  const columnSizeVars = useColumnSizeVars(table);
-
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const columnSizeVars = useColumnSizeVars(table, availableWidth);
   useInfiniteScroll({
     containerRef,
     enabled: table.options.enableInfiniteScroll,
@@ -52,6 +77,7 @@ export function DataTableContainer<TData extends RowData>({
     isFetchingNextPage: table.options.isFetchingNextPage,
     onFetchMore: table.options.onFetchMore,
     threshold: table.options.infiniteScrollThreshold,
+    rowCount: table.getRowModel().rows.length,
   });
 
   return (

@@ -32,6 +32,8 @@ import {
 } from "../lib/column-size-vars";
 
 const CONTAINER_SELECTOR = '[data-slot="data-table-container"]';
+/** Vùng thật sự cuộn (div bọc `<table>` trong `ui/table.tsx`). */
+const SCROLLER_SELECTOR = '[data-slot="table-container"]';
 const HEAD_LABEL_SELECTOR = '[data-slot="table-head-label"]';
 const HEAD_MENU_TRIGGER_SELECTOR = '[data-slot="table-head-menu-trigger"]';
 
@@ -133,13 +135,24 @@ export function useColumnResize<TData extends RowData>(
         isResizingColumn: column.id,
       }));
 
+      // Đo một lần lúc bắt đầu kéo: các cột co giãn phải tiếp tục lấp đầy khung
+      // trong suốt cử chỉ, nếu không thu nhỏ một cột sẽ để lộ khoảng trắng bên
+      // phải cho tới khi thả chuột. Cột đang kéo tự động bị loại khỏi việc giãn
+      // (nó nằm trong `overrides`).
+      const availableWidth =
+        container.querySelector<HTMLElement>(SCROLLER_SELECTOR)?.clientWidth ??
+        0;
+
       let rafId: number | null = null;
       let currentSize = startSize;
       let painted: ColumnSizeVars = {};
 
       function paint() {
         rafId = null;
-        const next = computeColumnSizeVars(table, { [column.id]: currentSize });
+        const next = computeColumnSizeVars(table, {
+          overrides: { [column.id]: currentSize },
+          availableWidth,
+        });
         for (const [key, value] of Object.entries(next)) {
           // Chỉ ghi biến thật sự đổi — kéo một cột thường chỉ động tới vài
           // biến, không cần đụng cả bảng mỗi khung hình.

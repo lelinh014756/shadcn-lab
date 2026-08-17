@@ -82,8 +82,6 @@ interface UseEmployeesTableProps {
   onFetchMore?: () => void;
   pageCount: number;
   pageSize: number;
-  /** Toolbar riêng của màn hình — render thay DataTableTopToolbar. */
-  renderTopToolbar?: () => React.ReactNode;
   onColumnPinningChange?: OnChangeFn<ColumnPinningState>;
   onColumnVisibilityChange?: OnChangeFn<VisibilityState>;
 }
@@ -103,7 +101,6 @@ export function useEmployeesTable({
   onFetchMore,
   pageCount,
   pageSize,
-  renderTopToolbar,
   onColumnPinningChange,
   onColumnVisibilityChange,
 }: UseEmployeesTableProps): {
@@ -365,7 +362,6 @@ export function useEmployeesTable({
     onColumnPinningChange,
     onColumnVisibilityChange,
 
-    renderTopToolbar,
 
     // Core tự suy ra `showProgressBars` + `showSkeletons` từ cờ này.
     isLoading,

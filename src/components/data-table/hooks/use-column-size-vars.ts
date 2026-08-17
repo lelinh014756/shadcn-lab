@@ -25,13 +25,17 @@ import { computeColumnSizeVars } from "../lib/column-size-vars";
  */
 export function useColumnSizeVars<TData extends RowData>(
   table: Table<TData>,
+  /** Bề rộng vùng cuộn; truyền 0 để tắt việc giãn cột cho vừa khung. */
+  availableWidth = 0,
 ): React.CSSProperties {
   const state = table.getState();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: `table` luôn đổi reference sau mỗi state update nên cố tình không đưa vào deps; chỉ 5 slice dưới đây mới thật sự làm hình học cột thay đổi.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `table` luôn đổi reference sau mỗi state update nên cố tình không đưa vào deps; chỉ các slice dưới đây mới thật sự làm hình học cột thay đổi.
   return React.useMemo(
-    () => computeColumnSizeVars(table) as React.CSSProperties,
+    () =>
+      computeColumnSizeVars(table, { availableWidth }) as React.CSSProperties,
     [
+      availableWidth,
       state.columnSizing,
       state.columnSizingInfo,
       state.columnVisibility,

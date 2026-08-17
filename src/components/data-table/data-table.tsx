@@ -24,12 +24,25 @@ import { resolveSlotProp } from "@/types/table";
 interface DataTableProps<TData extends RowData>
   extends React.ComponentProps<"div"> {
   table: TableCoreInstance<TData>;
+  /**
+   * Thay hẳn top toolbar mặc định, render ngay trong khung của bảng (nên bật
+   * toàn màn hình vẫn thấy).
+   *
+   * Ưu tiên dùng cái này thay cho `options.renderTopToolbar` khi toolbar cần
+   * đọc chính `table` (vd `<TableFullscreenToggle table={table} />`):
+   * `renderTopToolbar` nằm trong options, mà options thì phải dựng TRƯỚC khi
+   * có `table` — vòng phụ thuộc đó buộc nơi gọi phải lách qua `useRef`, và
+   * cái ref ấy rất dễ giữ closure cũ. Ở đây thì `table` đã tồn tại sẵn lúc
+   * render `<DataTable>`, nên truyền thẳng JSX là xong, không vòng vo.
+   */
+  topToolbar?: React.ReactNode;
   /** Floating bulk-action bar, shown while rows are selected. */
   actionBar?: React.ReactNode;
 }
 
 export function DataTable<TData extends RowData>({
   table,
+  topToolbar,
   actionBar,
   children,
   className,
@@ -56,9 +69,10 @@ export function DataTable<TData extends RowData>({
         )}
       >
         {enableTopToolbar &&
-          (renderTopToolbar?.({ table }) ?? (
-            <DataTableTopToolbar table={table}>{children}</DataTableTopToolbar>
-          ))}
+          (topToolbar ??
+            renderTopToolbar?.({ table }) ?? (
+              <DataTableTopToolbar table={table}>{children}</DataTableTopToolbar>
+            ))}
         <DataTableContainer table={table} />
         {enableBottomToolbar && <DataTableBottomToolbar table={table} />}
         {actionBar &&
