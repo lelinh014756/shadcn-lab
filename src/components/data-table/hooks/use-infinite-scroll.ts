@@ -96,17 +96,16 @@ export function useInfiniteScroll({
     // có cần nạp thêm không, để lần render sau tính lại.
     if (!element || element.clientHeight === 0) return;
 
-    if (element.scrollHeight - element.clientHeight >= threshold) return;
+    // Cố ý KHÔNG dùng `threshold` ở đây — đó là ngưỡng "gần đáy nên tải
+    // trước" của cơ chế cuộn thật (phía trên), khác mục đích. Ở đây chỉ cần
+    // biết có thanh cuộn hay chưa: `scrollHeight > clientHeight` là đã có
+    // (dù ngắn), người dùng tự cuộn nốt là xong — không cần tự nạp thêm.
+    // Dùng `>= threshold` trước đây coi luôn một thanh cuộn ngắn (còn dưới
+    // 400px) là "chưa có gì để cuộn", nên tải thêm ngay từ lần render đầu dù
+    // trang 1 đã đủ để cuộn thật.
+    if (element.scrollHeight - element.clientHeight) return;
 
     autoFilledAtRef.current = rowCount;
     onFetchMore?.();
-  }, [
-    containerRef,
-    enabled,
-    hasNextPage,
-    isFetchingNextPage,
-    onFetchMore,
-    rowCount,
-    threshold,
-  ]);
+  }, [containerRef, enabled, hasNextPage, isFetchingNextPage, onFetchMore, rowCount]);
 }
